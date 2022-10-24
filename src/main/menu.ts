@@ -5,6 +5,7 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions
 } from 'electron'
+import { isDev } from '../renderer/util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
@@ -233,14 +234,24 @@ export default class MenuBuilder {
             label: '&Import',
             accelerator: 'Ctrl+I',
             click: () => {
-              this.mainWindow.loadURL(
-                isDev
-                  ? 'http://localhost:3000/Import'
-                  : `file://${path.join(
-                      __dirname,
-                      '../build/index.html#Import'
-                    )}`
-              )
+              if (isDev) {
+                createModal(
+                  'http://localhost:3000/Import',
+                  this.mainWindow,
+                  600,
+                  600
+                )
+              } else {
+                createModal(
+                  `file://${path.join(
+                    __dirname,
+                    '../build/index.html#Import'
+                  )}`,
+                  this.mainWindow,
+                  600,
+                  600
+                )
+              }
             }
           }
         ]
