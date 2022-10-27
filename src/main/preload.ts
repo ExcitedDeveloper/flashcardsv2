@@ -1,6 +1,6 @@
+/* eslint-disable import/prefer-default-export */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
-
-export type Channels = 'ipc-example'
+import { Channels } from './util'
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
@@ -10,14 +10,18 @@ contextBridge.exposeInMainWorld('electron', {
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
         func(...args)
-      ipcRenderer.on(channel, subscription)
+      ipcRenderer.on(channel.toString(), subscription)
 
       return () => {
-        ipcRenderer.removeListener(channel, subscription)
+        ipcRenderer.removeListener(channel.toString(), subscription)
       }
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args))
     }
   }
+})
+
+contextBridge.exposeInMainWorld('fileApi', {
+  importFile: () => ipcRenderer.invoke('dialog:import')
 })

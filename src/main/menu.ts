@@ -3,35 +3,15 @@ import {
   Menu,
   shell,
   BrowserWindow,
-  MenuItemConstructorOptions
+  MenuItemConstructorOptions,
+  dialog,
+  webContents
 } from 'electron'
-import path from 'path'
-import { isDev } from '../renderer/util'
+import { Channels } from './util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
-}
-
-const createModal = (
-  htmlFile: string,
-  parentWindow: Electron.BrowserWindow,
-  width: number,
-  height: number
-) => {
-  const modal = new BrowserWindow({
-    width,
-    height,
-    modal: true,
-    parent: parentWindow,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  })
-
-  modal.loadFile(htmlFile)
-
-  return modal
 }
 
 export default class MenuBuilder {
@@ -39,6 +19,24 @@ export default class MenuBuilder {
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow
+  }
+
+  async handleImport(): Promise<string | null> {
+    const { canceled, filePaths } = await dialog.showOpenDialog(
+      this.mainWindow,
+      {
+        title: 'Import File',
+        properties: ['openFile'],
+        filters: [
+          {
+            name: 'CueCard',
+            extensions: ['wcu']
+          }
+        ]
+      }
+    )
+
+    return canceled ? null : filePaths[0]
   }
 
   buildMenu(): Menu {
@@ -234,25 +232,12 @@ export default class MenuBuilder {
           {
             label: '&Import',
             accelerator: 'Ctrl+I',
-            click: () => {
-              if (isDev) {
-                createModal(
-                  'http://localhost:3000/Import',
-                  this.mainWindow,
-                  600,
-                  600
-                )
-              } else {
-                createModal(
-                  `file://${path.join(
-                    __dirname,
-                    '../build/index.html#Import'
-                  )}`,
-                  this.mainWindow,
-                  600,
-                  600
-                )
-              }
+            click: async () => {
+              const importFilePath = await this.handleImport()
+              this.mainWindow.webContents.send(
+                Channels.ImportFile,
+                importFilePath
+              )
             }
           }
         ]

@@ -10,7 +10,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import MenuBuilder from './menu'
@@ -55,6 +55,26 @@ const installExtensions = async () => {
       forceDownload
     )
     .catch(console.log)
+}
+
+const handleImport = async (): Promise<string | null> => {
+  if (!mainWindow) {
+    console.warn('handleImport: mainWindow is null')
+    return null
+  }
+
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    title: 'Import File',
+    properties: ['openFile'],
+    filters: [
+      {
+        name: 'CueCard',
+        extensions: ['wcu']
+      }
+    ]
+  })
+
+  return canceled ? null : filePaths[0]
 }
 
 const createWindow = async () => {
@@ -128,6 +148,7 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    ipcMain.handle('dialog:import', handleImport)
     createWindow()
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
