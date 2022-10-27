@@ -1,5 +1,8 @@
 import { createRoot } from 'react-dom/client'
+// import fs from 'fs'
+import { toast } from 'react-toastify'
 import { Channels } from '../main/util'
+import { toastOptions } from './util'
 import App from './App'
 
 const container = document.getElementById('root')!
@@ -13,6 +16,12 @@ window.electron.ipcRenderer.once(Channels.IpcExample, (arg) => {
 })
 window.electron.ipcRenderer.sendMessage(Channels.IpcExample, ['ping'])
 
-window.electron.ipcRenderer.on(Channels.ImportFile, (message) => {
-  console.log(`********** import-file message`, message)
+window.electron.ipcRenderer.on(Channels.ImportFile, (importFilePath) => {
+  if (!importFilePath) {
+    toast('The import file path is not valid.', toastOptions)
+    return
+  }
+
+  toast(`File was successfully imported.`, toastOptions)
+  // fs.readFile(importFilePath)
 })
