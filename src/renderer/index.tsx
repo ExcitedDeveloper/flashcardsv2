@@ -1,10 +1,10 @@
 import { createRoot } from 'react-dom/client'
-// import fs from 'fs'
 import { toast } from 'react-toastify'
 import { Channels } from '../main/util'
 import { toastOptions } from './util'
 import App from './App'
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!
 const root = createRoot(container)
 root.render(<App />)
@@ -16,12 +16,15 @@ window.electron.ipcRenderer.once(Channels.IpcExample, (arg) => {
 })
 window.electron.ipcRenderer.sendMessage(Channels.IpcExample, ['ping'])
 
-window.electron.ipcRenderer.on(Channels.ImportFile, (importFilePath) => {
+window.electron.ipcRenderer.on(Channels.DisplayToast, (importFilePath) => {
   if (!importFilePath) {
     toast('The import file path is not valid.', toastOptions)
     return
   }
 
   toast(`File was successfully imported.`, toastOptions)
-  // fs.readFile(importFilePath)
+})
+
+window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
+  console.log(`renderer cueCards`, cueCards)
 })

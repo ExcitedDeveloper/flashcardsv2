@@ -1,4 +1,5 @@
 /* eslint import/prefer-default-export: off */
+import { BrowserWindow } from 'electron'
 import path from 'path'
 
 export function resolveHtmlPath(htmlFileName: string) {
@@ -13,5 +14,11 @@ export function resolveHtmlPath(htmlFileName: string) {
 
 export enum Channels {
   IpcExample = 'ipc-example',
-  ImportFile = 'import-file'
+  ImportFile = 'import-file',
+  DisplayToast = 'display-toast',
+  LoadCueCards = 'load-cuecards'
+}
+
+export const displayToast = (mainWindow: BrowserWindow, message: string) => {
+  mainWindow.webContents.send(Channels.DisplayToast, message)
 }

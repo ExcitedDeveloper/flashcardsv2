@@ -12,7 +12,8 @@ const configuration: webpack.Configuration = {
     ...Object.keys(externals || {}),
     'esbuild',
     'uglify-js',
-    '@swc/core'
+    '@swc/core',
+    'fs'
   ],
 
   stats: 'errors-only',

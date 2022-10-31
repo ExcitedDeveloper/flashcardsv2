@@ -4,14 +4,21 @@ import {
   shell,
   BrowserWindow,
   MenuItemConstructorOptions,
-  dialog,
-  webContents
+  dialog
 } from 'electron'
-import { Channels } from './util'
+import fs from 'fs'
+import { XMLParser } from 'fast-xml-parser'
+import { Channels, displayToast } from './util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
+}
+
+interface CueCard {
+  '@_Question': string
+  '@_Answer': string
+  '@_History': string
 }
 
 export default class MenuBuilder {
@@ -21,7 +28,7 @@ export default class MenuBuilder {
     this.mainWindow = mainWindow
   }
 
-  async handleImport(): Promise<string | null> {
+  async handleImport(): Promise<void> {
     const { canceled, filePaths } = await dialog.showOpenDialog(
       this.mainWindow,
       {
@@ -36,7 +43,41 @@ export default class MenuBuilder {
       }
     )
 
-    return canceled ? null : filePaths[0]
+    if (canceled) {
+      return
+    }
+
+    fs.readFile(filePaths[0], (err, data) => {
+      if (err) {
+        displayToast(this.mainWindow, `An error occurred while importing file.`)
+        return
+      }
+
+      const parser = new XMLParser({
+        ignoreAttributes: false
+      })
+
+      const json = parser.parse(data)
+
+      const cueCards =
+        json.CueCards?.Card?.map((card: CueCard) => ({
+          Question: card['@_Question'],
+          Answer: card['@_Answer'],
+          History: card['@_History']
+        })) || []
+
+      if (!cueCards) {
+        displayToast(
+          this.mainWindow,
+          `An error occurred while parsing import file.`
+        )
+        return
+      }
+
+      displayToast(this.mainWindow, `File was successfully imported.`)
+
+      this.mainWindow.webContents.send(Channels.LoadCueCards, cueCards)
+    })
   }
 
   buildMenu(): Menu {
@@ -233,11 +274,7 @@ export default class MenuBuilder {
             label: '&Import',
             accelerator: 'Ctrl+I',
             click: async () => {
-              const importFilePath = await this.handleImport()
-              this.mainWindow.webContents.send(
-                Channels.ImportFile,
-                importFilePath
-              )
+              this.handleImport()
             }
           }
         ]
