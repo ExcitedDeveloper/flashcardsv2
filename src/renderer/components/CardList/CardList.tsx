@@ -1,24 +1,25 @@
 import 'react-toastify/dist/ReactToastify.css'
-import DataGrid from 'react-data-grid'
+import { AgGridReact } from 'ag-grid-react'
 import { useAppSelector } from '../../redux/hooks'
-import 'react-data-grid/lib/styles.css'
+import 'ag-grid-community/dist/styles/ag-grid.css'
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
 import './CardList.css'
 
-const columns = [
+const columnDefs = [
   {
-    key: 'question',
-    name: 'Question',
-    resizable: true
+    field: 'question',
+    sortable: true,
+    filter: true
   },
   {
-    key: 'answer',
-    name: 'Answer',
-    resizable: true
+    field: 'answer',
+    sortable: true,
+    filter: true
   },
   {
-    key: 'score',
-    name: 'Score',
-    resizable: true
+    field: 'score',
+    sortable: true,
+    filter: true
   }
 ]
 
@@ -26,12 +27,8 @@ const CardList = () => {
   const { cueCards } = useAppSelector((state) => state.cueCards)
 
   return (
-    <div className="card-list">
-      <DataGrid
-        columns={columns}
-        rows={cueCards}
-        style={{ minHeight: '25rem', height: '100%' }}
-      />
+    <div className="ag-theme-alpine" style={{ height: 500 }}>
+      <AgGridReact rowData={cueCards} columnDefs={columnDefs} />
     </div>
   )
 }
