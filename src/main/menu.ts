@@ -8,6 +8,8 @@ import {
 } from 'electron'
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
+import { v4 as uuidv4 } from 'uuid'
+import { stringify } from 'querystring'
 import { Channels, displayToast } from './util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -19,6 +21,29 @@ interface ImportCueCard {
   '@_Question': string
   '@_Answer': string
   '@_History': string
+}
+
+const getScore = (history: string): string => {
+  if (!history || history.length <= 0) {
+    return '0%'
+  }
+
+  const tries = history.length
+
+  // Get the number of successful tries
+  const successes = history.split('').reduce((acc: number, curr: string) => {
+    return curr === 'Y' ? acc + 1 : acc
+  }, 0)
+
+  // Score is successes divided by tries
+  let score = Math.floor((successes / tries) * 100)
+  if (score < 0) {
+    score = 0
+  } else if (score > 100) {
+    score = 100
+  }
+
+  return `${score}%`
 }
 
 export default class MenuBuilder {
@@ -61,9 +86,11 @@ export default class MenuBuilder {
 
       const cueCards =
         json.CueCards?.Card?.map((card: ImportCueCard) => ({
-          Question: card['@_Question'],
-          Answer: card['@_Answer'],
-          History: card['@_History']
+          id: uuidv4(),
+          question: card['@_Question'],
+          answer: card['@_Answer'],
+          history: card['@_History'],
+          score: getScore(card['@_History'])
         })) || []
 
       if (!cueCards) {

@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { toast } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import { Provider } from 'react-redux'
 import { Channels } from '../main/util'
 import { toastOptions } from './util'
@@ -16,6 +16,7 @@ root.render(
   <StrictMode>
     <Provider store={store}>
       <App />
+      <ToastContainer />
     </Provider>
   </StrictMode>
 )
