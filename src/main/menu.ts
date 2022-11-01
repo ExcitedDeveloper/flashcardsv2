@@ -15,7 +15,7 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
 }
 
-interface CueCard {
+interface ImportCueCard {
   '@_Question': string
   '@_Answer': string
   '@_History': string
@@ -60,7 +60,7 @@ export default class MenuBuilder {
       const json = parser.parse(data)
 
       const cueCards =
-        json.CueCards?.Card?.map((card: CueCard) => ({
+        json.CueCards?.Card?.map((card: ImportCueCard) => ({
           Question: card['@_Question'],
           Answer: card['@_Answer'],
           History: card['@_History']

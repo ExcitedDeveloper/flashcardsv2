@@ -1,13 +1,24 @@
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { toast } from 'react-toastify'
+import { Provider } from 'react-redux'
 import { Channels } from '../main/util'
 import { toastOptions } from './util'
 import App from './App'
+import { store } from './redux/store'
+import { loadCueCards } from './redux/cueCards'
+import CueCard from './types/cueCard'
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!
 const root = createRoot(container)
-root.render(<App />)
+root.render(
+  <StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </StrictMode>
+)
 
 // calling IPC exposed from preload script
 window.electron.ipcRenderer.once(Channels.IpcExample, (arg) => {
@@ -26,5 +37,5 @@ window.electron.ipcRenderer.on(Channels.DisplayToast, (importFilePath) => {
 })
 
 window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
-  console.log(`renderer cueCards`, cueCards)
+  store.dispatch(loadCueCards(cueCards as CueCard[]))
 })
