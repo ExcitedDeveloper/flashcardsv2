@@ -9,7 +9,6 @@ import {
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { v4 as uuidv4 } from 'uuid'
-import { stringify } from 'querystring'
 import { Channels, displayToast } from './util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
