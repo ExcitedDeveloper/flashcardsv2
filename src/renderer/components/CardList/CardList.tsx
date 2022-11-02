@@ -2,8 +2,10 @@ import 'react-toastify/dist/ReactToastify.css'
 import { AgGridReact } from 'ag-grid-react'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useAppSelector } from '../../redux/hooks'
+import Button from './Button/Button'
 import 'ag-grid-community/dist/styles/ag-grid.css'
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
+import '../../App.css'
 import './CardList.css'
 
 const columnDefs = [
@@ -83,7 +85,22 @@ const CardList = () => {
           onSortChanged={handleSortChanged}
         />
       </div>
-      <div className="card-list-footer">lkljkkjkj</div>
+      <div className="card-list-footer">
+        <div className="card-list-buttons">
+          <div className="card-list-modify-buttons">
+            <Button onClick={() => {}} className="margin-right-sm">
+              New Card
+            </Button>
+            <Button onClick={() => {}} className="margin-right-sm">
+              Edit Card
+            </Button>
+            <Button onClick={() => {}}>Delete Card</Button>
+          </div>
+          <div className="card-list-study-button">
+            <Button onClick={() => {}}>Study</Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
