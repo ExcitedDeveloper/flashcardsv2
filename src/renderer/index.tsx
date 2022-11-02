@@ -31,10 +31,7 @@ window.electron.ipcRenderer.sendMessage(Channels.IpcExample, ['ping'])
 window.electron.ipcRenderer.on(Channels.DisplayToast, (importFilePath) => {
   if (!importFilePath) {
     toast('The import file path is not valid.', toastOptions)
-    return
   }
-
-  toast(`File was successfully imported.`, toastOptions)
 })
 
 window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {

@@ -1,5 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css'
 import { AgGridReact } from 'ag-grid-react'
+import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useAppSelector } from '../../redux/hooks'
 import 'ag-grid-community/dist/styles/ag-grid.css'
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
@@ -40,6 +41,10 @@ const columnDefs = [
   }
 ]
 
+const DEFAULT_WINDOW_HEIGHT = 500
+const MENU_BAR_HEIGHT = 20
+const FOOTER_HEIGHT = 80
+
 const handleSortChanged = () => {
   const divs = document.querySelectorAll('.ag-root .ag-center-cols-container')
 
@@ -54,14 +59,31 @@ const handleSortChanged = () => {
 
 const CardList = () => {
   const { cueCards } = useAppSelector((state) => state.cueCards)
+  const size: Size = useWindowSize()
 
   return (
-    <div className="ag-theme-alpine" style={{ height: 500 }}>
-      <AgGridReact
-        rowData={cueCards}
-        columnDefs={columnDefs}
-        onSortChanged={handleSortChanged}
-      />
+    <div
+      className="card-list"
+      style={{
+        height: (size.height || DEFAULT_WINDOW_HEIGHT) - MENU_BAR_HEIGHT
+      }}
+    >
+      <div
+        className="ag-theme-alpine"
+        style={{
+          height:
+            (size.height || DEFAULT_WINDOW_HEIGHT) -
+            MENU_BAR_HEIGHT -
+            FOOTER_HEIGHT
+        }}
+      >
+        <AgGridReact
+          rowData={cueCards}
+          columnDefs={columnDefs}
+          onSortChanged={handleSortChanged}
+        />
+      </div>
+      <div className="card-list-footer">lkljkkjkj</div>
     </div>
   )
 }
