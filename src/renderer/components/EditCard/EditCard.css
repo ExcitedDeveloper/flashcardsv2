@@ -1,0 +1,52 @@
+.edit-card {
+  position: relative;
+}
+
+.edit-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-card-question,
+.edit-card-answer {
+  flex: 1;
+}
+
+fieldset {
+  font-weight: 500;
+}
+
+.edit-card-question {
+  margin-bottom: 0.5rem;
+}
+
+.edit-card-fieldset {
+  height: 100%;
+}
+
+.edit-card-textarea {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+.edit-card-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 3.125rem;
+}
+
+.edit-card-buttons {
+  position: relative;
+  height: 100%;
+}
+
+.edit-card-study-button {
+  position: absolute;
+  right: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}

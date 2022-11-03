@@ -1,8 +1,14 @@
 import 'react-toastify/dist/ReactToastify.css'
 import { AgGridReact } from 'ag-grid-react'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
+import { useNavigate } from 'react-router'
 import { useAppSelector } from '../../redux/hooks'
-import Button from './Button/Button'
+import Button from '../Button/Button'
+import {
+  DEFAULT_WINDOW_HEIGHT,
+  MENU_BAR_HEIGHT,
+  FOOTER_HEIGHT
+} from '../../constants'
 import 'ag-grid-community/dist/styles/ag-grid.css'
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
 import '../../App.css'
@@ -43,10 +49,6 @@ const columnDefs = [
   }
 ]
 
-const DEFAULT_WINDOW_HEIGHT = 500
-const MENU_BAR_HEIGHT = 20
-const FOOTER_HEIGHT = 80
-
 const handleSortChanged = () => {
   const divs = document.querySelectorAll('.ag-root .ag-center-cols-container')
 
@@ -62,6 +64,7 @@ const handleSortChanged = () => {
 const CardList = () => {
   const { cueCards } = useAppSelector((state) => state.cueCards)
   const size: Size = useWindowSize()
+  const navigate = useNavigate()
 
   return (
     <div
@@ -88,10 +91,16 @@ const CardList = () => {
       <div className="card-list-footer">
         <div className="card-list-buttons">
           <div className="card-list-modify-buttons">
-            <Button onClick={() => {}} className="margin-right-sm">
+            <Button
+              onClick={() => navigate('/AddCard')}
+              className="margin-right-sm"
+            >
               New Card
             </Button>
-            <Button onClick={() => {}} className="margin-right-sm">
+            <Button
+              onClick={() => navigate('/EditCard')}
+              className="margin-right-sm"
+            >
               Edit Card
             </Button>
             <Button onClick={() => {}}>Delete Card</Button>

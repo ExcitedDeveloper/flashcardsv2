@@ -7,6 +7,7 @@ export interface ButtonProps {
   onClick: () => void
   children: React.ReactNode
   className?: string
+  style?: object
 }
 
 const Button = ({
@@ -32,7 +33,8 @@ const Button = ({
 
 Button.defaultProps = {
   type: 'button',
-  className: ''
+  className: '',
+  style: {}
 }
 
 export default Button
