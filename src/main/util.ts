@@ -16,7 +16,8 @@ export enum Channels {
   IpcExample = 'ipc-example',
   ImportFile = 'import-file',
   DisplayToast = 'display-toast',
-  LoadCueCards = 'load-cuecards'
+  LoadCueCards = 'load-cuecards',
+  AddCueCard = 'add-cuecard'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

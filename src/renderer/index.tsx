@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { toast, ToastContainer } from 'react-toastify'
 import { Provider } from 'react-redux'
 import { Channels } from '../main/util'
-import { toastOptions } from './util'
+import { toastOptions } from './util/util'
 import App from './App'
 import { store } from './redux/store'
-import { loadCueCards } from './redux/cueCards'
+import { addCueCard, loadCueCards } from './redux/cueCards'
 import CueCard from './types/cueCard'
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -36,4 +36,9 @@ window.electron.ipcRenderer.on(Channels.DisplayToast, (importFilePath) => {
 
 window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
   store.dispatch(loadCueCards(cueCards as CueCard[]))
+})
+
+window.electron.ipcRenderer.on(Channels.AddCueCard, (cueCard) => {
+  console.log(`AddCueCard`, { cueCard })
+  store.dispatch(addCueCard(cueCard as CueCard))
 })
