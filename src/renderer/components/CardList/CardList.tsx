@@ -53,15 +53,17 @@ const columnDefs = [
 ]
 
 const changeScroll = (scroll: ScrollAction = ScrollAction.Top) => {
-  const divs = document.querySelectorAll('.ag-root .ag-center-cols-container')
+  setTimeout(() => {
+    const divs = document.querySelectorAll('.ag-root .ag-center-cols-container')
 
-  if (!divs || divs.length < 0) return
+    if (!divs || divs.length < 0) return
 
-  const gridDiv = divs[0]
+    const gridDiv = divs[0]
 
-  if (!gridDiv) return
+    if (!gridDiv) return
 
-  gridDiv.scrollIntoView(scroll === ScrollAction.Top)
+    gridDiv.scrollIntoView(scroll === ScrollAction.Top)
+  }, 500)
 }
 
 const CardList = () => {
