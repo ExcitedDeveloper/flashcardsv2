@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 import { createCueCard } from 'renderer/util/cueCard'
 import { toastOptions } from 'renderer/util/util'
+import { useDispatch } from 'react-redux'
 import Button from '../Button/Button'
 import {
   DEFAULT_WINDOW_HEIGHT,
   MENU_BAR_HEIGHT,
   FOOTER_HEIGHT
 } from '../../constants'
-import { Channels } from '../../../main/util'
+import { addCueCard } from '../../redux/cueCards'
 import './EditCard.css'
 
 const EditCard = () => {
@@ -18,6 +19,7 @@ const EditCard = () => {
   const navigate = useNavigate()
   const questionRef = useRef<HTMLTextAreaElement>(null)
   const answerRef = useRef<HTMLTextAreaElement>(null)
+  const dispatch = useDispatch()
 
   const handleFinished = () => {
     // Get the question and answer text
@@ -41,7 +43,7 @@ const EditCard = () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const newCueCard = createCueCard(question!, answer!)
 
-    window.electron.ipcRenderer.sendMessage(Channels.AddCueCard, [newCueCard])
+    dispatch(addCueCard(newCueCard))
 
     navigate('/')
   }
