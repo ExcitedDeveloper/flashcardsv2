@@ -1,11 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
 import cueCardsReducer from './cueCards'
-import fileReducer from './file'
 
 export const store = configureStore({
   reducer: {
-    cueCards: cueCardsReducer,
-    file: fileReducer
+    cueCards: cueCardsReducer
   }
 })
 
