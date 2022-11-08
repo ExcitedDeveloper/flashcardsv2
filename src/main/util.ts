@@ -17,7 +17,9 @@ export enum Channels {
   ImportFile = 'import-file',
   DisplayToast = 'display-toast',
   LoadCueCards = 'load-cuecards',
-  AddCueCard = 'add-cuecard'
+  AddCueCard = 'add-cuecard',
+  CloseApp = 'close-app',
+  MinimizeApp = 'minimize-app'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

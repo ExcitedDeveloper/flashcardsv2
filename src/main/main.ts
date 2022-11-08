@@ -14,7 +14,7 @@ import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import MenuBuilder from './menu'
-import { resolveHtmlPath } from './util'
+import { resolveHtmlPath, Channels } from './util'
 
 class AppUpdater {
   constructor() {
@@ -30,6 +30,14 @@ ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
   console.log(msgTemplate(arg))
   event.reply('ipc-example', msgTemplate('pong'))
+})
+
+ipcMain.on(Channels.CloseApp, () => {
+  mainWindow?.close()
+})
+
+ipcMain.on(Channels.MinimizeApp, () => {
+  mainWindow?.minimize()
 })
 
 if (process.env.NODE_ENV === 'production') {
@@ -94,6 +102,7 @@ const createWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
+    frame: false,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
