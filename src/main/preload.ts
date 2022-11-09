@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 import { Channels } from './util'
 

@@ -5,7 +5,7 @@ const APP_NAME = 'Flashcards'
 const DFLT_FILENAME = 'Untitled'
 
 // Define a type for the slice state
-interface FileState {
+export interface FileState {
   fileName: string
   isDirty: boolean
   displayFileName: string
@@ -26,16 +26,10 @@ export const fileSlice = createSlice({
     openFile: (state, action: PayloadAction<string>) => {
       state.fileName = action.payload
       state.displayFileName = `${action.payload} - ${APP_NAME}`
-    },
-    setDirty: (state, action: PayloadAction<boolean>) => {
-      state.isDirty = action.payload
-      state.displayFileName = `${state.fileName}${
-        action.payload ? '*' : null
-      } - ${APP_NAME}`
     }
   }
 })
 
-export const { openFile, setDirty } = fileSlice.actions
+export const { openFile } = fileSlice.actions
 
 export default fileSlice.reducer

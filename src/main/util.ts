@@ -13,13 +13,11 @@ export function resolveHtmlPath(htmlFileName: string) {
 }
 
 export enum Channels {
-  IpcExample = 'ipc-example',
   ImportFile = 'import-file',
   DisplayToast = 'display-toast',
   LoadCueCards = 'load-cuecards',
   AddCueCard = 'add-cuecard',
-  CloseApp = 'close-app',
-  MinimizeApp = 'minimize-app'
+  SetDirty = 'set-dirty'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

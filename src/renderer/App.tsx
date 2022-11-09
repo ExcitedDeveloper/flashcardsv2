@@ -3,14 +3,19 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router'
 import { useAppSelector } from './redux/hooks'
 import CardList from './components/CardList/CardList'
 import EditCard from './components/EditCard/EditCard'
+import { Channels } from '../main/util'
 import './App.css'
 
 export default function App() {
-  const { displayFileName } = useAppSelector((state) => state.cueCards)
+  const { displayFileName, isDirty } = useAppSelector((state) => state.cueCards)
 
   useEffect(() => {
     document.title = displayFileName
   }, [displayFileName])
+
+  useEffect(() => {
+    window.electron.ipcRenderer.sendMessage(Channels.SetDirty, [isDirty])
+  }, [isDirty])
 
   return (
     <Router>

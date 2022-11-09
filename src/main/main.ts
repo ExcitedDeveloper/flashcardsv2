@@ -26,18 +26,10 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`
-  console.log(msgTemplate(arg))
-  event.reply('ipc-example', msgTemplate('pong'))
-})
+let isDirty = false
 
-ipcMain.on(Channels.CloseApp, () => {
-  mainWindow?.close()
-})
-
-ipcMain.on(Channels.MinimizeApp, () => {
-  mainWindow?.minimize()
+ipcMain.on(Channels.SetDirty, async (_event, arg) => {
+  isDirty = arg && arg.length > 0 ? arg[0] : false
 })
 
 if (process.env.NODE_ENV === 'production') {
@@ -124,7 +116,29 @@ const createWindow = async () => {
     }
   })
 
-  mainWindow.on('closed', () => {
+  mainWindow.on('close', (e) => {
+    console.log(`mainWindow close isDirty`, isDirty)
+    if (isDirty) {
+      console.log(`mainWindow close showMessageBox`)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      dialog
+        .showMessageBox({
+          type: 'question',
+          title: 'Confirmation',
+          message: 'File is has been modified.  Are you sure you want to quit?',
+          buttons: ['Yes', 'No']
+        })
+        .then((result) => {
+          console.log(`******* result`, result)
+          if (result.response !== 0) {
+            e.preventDefault()
+          }
+        })
+        .catch((error) => console.error(error))
+    }
+  })
+
+  mainWindow.on('closed', async () => {
     mainWindow = null
   })
 

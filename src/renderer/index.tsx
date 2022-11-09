@@ -22,12 +22,6 @@ root.render(
 )
 
 // calling IPC exposed from preload script
-window.electron.ipcRenderer.once(Channels.IpcExample, (arg) => {
-  // eslint-disable-next-line no-console
-  console.log(arg)
-})
-window.electron.ipcRenderer.sendMessage(Channels.IpcExample, ['ping'])
-
 window.electron.ipcRenderer.on(Channels.DisplayToast, (importFilePath) => {
   if (!importFilePath) {
     toast('The import file path is not valid.', toastOptions)
@@ -39,6 +33,5 @@ window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
 })
 
 window.electron.ipcRenderer.on(Channels.AddCueCard, (cueCard) => {
-  console.log(`AddCueCard`, { cueCard })
   store.dispatch(addCueCard(cueCard as CueCard))
 })
