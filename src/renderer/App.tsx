@@ -1,21 +1,38 @@
 import { useEffect } from 'react'
 import { MemoryRouter as Router, Routes, Route } from 'react-router'
+import path from 'path'
 import { useAppSelector } from './redux/hooks'
 import CardList from './components/CardList/CardList'
 import EditCard from './components/EditCard/EditCard'
 import { Channels } from '../main/util'
 import './App.css'
 
+const APP_NAME = 'Flashcards'
+const DFLT_FILENAME = 'Untitled'
+
+const getFileName = (filePath: string | undefined) => {
+  return filePath ? path.basename(filePath) : undefined
+}
+
+const getDisplayFileName = (isDirty: boolean, filePath?: string): string => {
+  const fileName = getFileName(filePath)
+  return `${fileName || DFLT_FILENAME}${isDirty ? '*' : ''} - ${APP_NAME}`
+}
+
 export default function App() {
-  const { displayFileName, isDirty } = useAppSelector((state) => state.cueCards)
+  const { isDirty, filePath } = useAppSelector((state) => state.cueCards)
 
   useEffect(() => {
-    document.title = displayFileName
-  }, [displayFileName])
+    document.title = getDisplayFileName(isDirty, filePath)
+  }, [filePath, isDirty])
 
   useEffect(() => {
     window.electron.ipcRenderer.sendMessage(Channels.SetDirty, [isDirty])
   }, [isDirty])
+
+  useEffect(() => {
+    window.electron.ipcRenderer.sendMessage(Channels.SetFilePath, [filePath])
+  }, [filePath])
 
   return (
     <Router>

@@ -17,7 +17,9 @@ export enum Channels {
   DisplayToast = 'display-toast',
   LoadCueCards = 'load-cuecards',
   AddCueCard = 'add-cuecard',
-  SetDirty = 'set-dirty'
+  SetDirty = 'set-dirty',
+  SetFilePath = 'set-filepath',
+  SaveFile = 'save-file'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

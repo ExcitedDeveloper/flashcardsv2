@@ -4,7 +4,8 @@ import {
   shell,
   BrowserWindow,
   MenuItemConstructorOptions,
-  dialog
+  dialog,
+  ipcMain
 } from 'electron'
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
@@ -21,6 +22,8 @@ interface ImportCueCard {
   '@_Answer': string
   '@_History': string
 }
+
+let filePath: string
 
 const getScore = (history: string): string => {
   if (!history || history.length <= 0) {
@@ -45,11 +48,36 @@ const getScore = (history: string): string => {
   return `${score}%`
 }
 
+ipcMain.on(Channels.SetFilePath, async (_event, arg) => {
+  filePath = arg && arg.length > 0 ? arg[0] : ''
+})
+
 export default class MenuBuilder {
   mainWindow: BrowserWindow
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow
+  }
+
+  async handleSave(): Promise<void> {
+    let currFilePath: string | undefined = filePath
+
+    if (!filePath) {
+      currFilePath = dialog.showSaveDialogSync(this.mainWindow, {
+        title: 'Select the file path to save',
+        buttonLabel: 'Save',
+        filters: [
+          {
+            name: 'Flashcard Files',
+            extensions: ['json']
+          }
+        ]
+      })
+
+      if (!currFilePath) {
+        //
+      }
+    }
   }
 
   async handleImport(): Promise<void> {
@@ -296,6 +324,22 @@ export default class MenuBuilder {
               this.mainWindow.close()
             }
           },
+          { type: 'separator' },
+          {
+            label: '&Save',
+            accelerator: 'Ctrl+S',
+            click: () => {
+              //
+            }
+          },
+          {
+            label: '&Save As',
+            accelerator: 'Ctrl+A',
+            click: () => {
+              //
+            }
+          },
+          { type: 'separator' },
           {
             label: '&Import',
             accelerator: 'Ctrl+I',
