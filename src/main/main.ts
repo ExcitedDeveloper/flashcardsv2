@@ -117,24 +117,21 @@ const createWindow = async () => {
   })
 
   mainWindow.on('close', (e) => {
-    console.log(`mainWindow close isDirty`, isDirty)
+    e.preventDefault()
+
     if (isDirty) {
-      console.log(`mainWindow close showMessageBox`)
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      dialog
-        .showMessageBox({
-          type: 'question',
-          title: 'Confirmation',
-          message: 'File is has been modified.  Are you sure you want to quit?',
-          buttons: ['Yes', 'No']
-        })
-        .then((result) => {
-          console.log(`******* result`, result)
-          if (result.response !== 0) {
-            e.preventDefault()
-          }
-        })
-        .catch((error) => console.error(error))
+      const buttonIndex = dialog.showMessageBoxSync({
+        type: 'question',
+        title: 'Confirmation',
+        message: 'File is has been modified.  Are you sure you want to quit?',
+        buttons: ['Yes', 'No']
+      })
+
+      if (buttonIndex === 0) {
+        mainWindow?.destroy()
+        app.quit()
+      }
     }
   })
 
