@@ -20,7 +20,7 @@ export interface CueCardsState {
 const initialState: CueCardsState = {
   cueCards: [],
   shouldScroll: undefined,
-  fileName: `${DFLT_FILENAME} - ${APP_NAME}`,
+  fileName: `${DFLT_FILENAME}`,
   isDirty: false,
   displayFileName: `${DFLT_FILENAME} - ${APP_NAME}`
 }
