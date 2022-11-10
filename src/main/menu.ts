@@ -329,14 +329,14 @@ export default class MenuBuilder {
             label: '&Save',
             accelerator: 'Ctrl+S',
             click: () => {
-              //
+              this.handleSave()
             }
           },
           {
             label: '&Save As',
             accelerator: 'Ctrl+A',
             click: () => {
-              //
+              this.handleSave()
             }
           },
           { type: 'separator' },

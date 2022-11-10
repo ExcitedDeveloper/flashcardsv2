@@ -37,15 +37,15 @@ window.electron.ipcRenderer.on(Channels.AddCueCard, (cueCard) => {
   store.dispatch(addCueCard(cueCard as CueCard))
 })
 
-window.electron.ipcRenderer.on(Channels.SaveFile, (currFilePath: string) => {
+window.electron.ipcRenderer.on(Channels.SaveFile, (currFilePath) => {
   const { cueCards, filePath } = store.getState().cueCards
 
-  if (!cueCards || cueCards.length <= 0) {
+  if (!cueCards || cueCards.length <= 0 || !currFilePath) {
     return
   }
 
   try {
-    fs.writeFile(currFilePath, JSON.stringify(cueCards), (err) => {
+    fs.writeFile(currFilePath as string, JSON.stringify(cueCards), (err) => {
       if (err) {
         // eslint-disable-next-line no-console
         console.error(err)
@@ -54,7 +54,7 @@ window.electron.ipcRenderer.on(Channels.SaveFile, (currFilePath: string) => {
       }
 
       if (currFilePath !== filePath) {
-        store.dispatch(saveFile(currFilePath))
+        store.dispatch(saveFile(currFilePath as string))
       }
 
       toast('Successfully saved file.', toastOptions)
