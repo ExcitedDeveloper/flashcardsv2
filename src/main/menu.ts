@@ -5,7 +5,8 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
   dialog,
-  ipcMain
+  ipcMain,
+  ipcRenderer
 } from 'electron'
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
@@ -60,78 +61,97 @@ export default class MenuBuilder {
   }
 
   async handleSave(): Promise<void> {
-    let currFilePath: string | undefined = filePath
+    try {
+      let currFilePath: string | undefined = filePath
 
-    if (!filePath) {
-      currFilePath = dialog.showSaveDialogSync(this.mainWindow, {
-        title: 'Select the file path to save',
-        buttonLabel: 'Save',
-        filters: [
-          {
-            name: 'Flashcard Files',
-            extensions: ['json']
-          }
-        ]
-      })
+      if (!filePath) {
+        currFilePath = dialog.showSaveDialogSync(this.mainWindow, {
+          title: 'Select the file path to save',
+          buttonLabel: 'Save',
+          filters: [
+            {
+              name: 'Flashcard Files',
+              extensions: ['json']
+            }
+          ]
+        })
 
-      if (!currFilePath) {
-        //
+        if (currFilePath) {
+          this.mainWindow.webContents.send(Channels.SaveFile, currFilePath)
+        }
       }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
+      dialog.showMessageBox(this.mainWindow, {
+        message: 'Unknown error in menu.ts::handleSave'
+      })
     }
   }
 
   async handleImport(): Promise<void> {
-    const { canceled, filePaths } = await dialog.showOpenDialog(
-      this.mainWindow,
-      {
-        title: 'Import File',
-        properties: ['openFile'],
-        filters: [
-          {
-            name: 'CueCard',
-            extensions: ['wcu']
-          }
-        ]
-      }
-    )
+    try {
+      const { canceled, filePaths } = await dialog.showOpenDialog(
+        this.mainWindow,
+        {
+          title: 'Import File',
+          properties: ['openFile'],
+          filters: [
+            {
+              name: 'CueCard',
+              extensions: ['wcu']
+            }
+          ]
+        }
+      )
 
-    if (canceled) {
-      return
-    }
-
-    fs.readFile(filePaths[0], (err, data) => {
-      if (err) {
-        displayToast(this.mainWindow, `An error occurred while importing file.`)
+      if (canceled) {
         return
       }
 
-      const parser = new XMLParser({
-        ignoreAttributes: false
+      fs.readFile(filePaths[0], (err, data) => {
+        if (err) {
+          displayToast(
+            this.mainWindow,
+            `An error occurred while importing file.`
+          )
+          return
+        }
+
+        const parser = new XMLParser({
+          ignoreAttributes: false
+        })
+
+        const json = parser.parse(data)
+
+        const cueCards =
+          json.CueCards?.Card?.map((card: ImportCueCard) => ({
+            id: uuidv4(),
+            question: card['@_Question'],
+            answer: card['@_Answer'],
+            history: card['@_History'],
+            score: getScore(card['@_History'])
+          })) || []
+
+        if (!cueCards) {
+          displayToast(
+            this.mainWindow,
+            `An error occurred while parsing import file.`
+          )
+          return
+        }
+
+        displayToast(this.mainWindow, `File was successfully imported.`)
+
+        this.mainWindow.webContents.send(Channels.LoadCueCards, cueCards)
       })
-
-      const json = parser.parse(data)
-
-      const cueCards =
-        json.CueCards?.Card?.map((card: ImportCueCard) => ({
-          id: uuidv4(),
-          question: card['@_Question'],
-          answer: card['@_Answer'],
-          history: card['@_History'],
-          score: getScore(card['@_History'])
-        })) || []
-
-      if (!cueCards) {
-        displayToast(
-          this.mainWindow,
-          `An error occurred while parsing import file.`
-        )
-        return
-      }
-
-      displayToast(this.mainWindow, `File was successfully imported.`)
-
-      this.mainWindow.webContents.send(Channels.LoadCueCards, cueCards)
-    })
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
+      dialog.showMessageBox(this.mainWindow, {
+        message: 'Unknown error in menu.ts::handleImport'
+      })
+    }
   }
 
   buildMenu(): Menu {

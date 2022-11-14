@@ -65,3 +65,17 @@ window.electron.ipcRenderer.on(Channels.SaveFile, (currFilePath) => {
     toast('Unknown error trying to save file.', toastOptions)
   }
 })
+
+if (process) {
+  process.on('uncaughtException', (error) => {
+    // eslint-disable-next-line no-console
+    console.error(error)
+    toast('Uncaught exception error', toastOptions)
+  })
+
+  process.on('unhandledRejection', (error) => {
+    // eslint-disable-next-line no-console
+    console.error(error)
+    toast('Unhandled rejection error')
+  })
+}
