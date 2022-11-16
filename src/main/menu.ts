@@ -10,9 +10,9 @@ import {
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { v4 as uuidv4 } from 'uuid'
-import { CueCardsState, saveFile } from '../redux/cueCards'
+import { CueCardsState } from '../redux/cueCards'
 import { Channels, displayToast } from './util'
-import { store } from '../redux/store'
+import { getFileName } from '../renderer/util/util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
@@ -103,7 +103,11 @@ export default class MenuBuilder {
               }
 
               if (currFilePath !== filePath) {
-                store.dispatch(saveFile(currFilePath as string))
+                // store.dispatch(saveFile(currFilePath as string))
+                this.mainWindow.webContents.send(
+                  Channels.SaveFile,
+                  getFileName(currFilePath)
+                )
               }
 
               displayToast(this.mainWindow, 'Successfully saved file.')

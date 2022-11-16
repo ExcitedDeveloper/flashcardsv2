@@ -1,18 +1,14 @@
 import { useEffect } from 'react'
 import { MemoryRouter as Router, Routes, Route } from 'react-router'
-import path from 'path'
 import { useAppSelector } from '../redux/hooks'
 import CardList from './components/CardList/CardList'
 import EditCard from './components/EditCard/EditCard'
 import { Channels } from '../main/util'
+import { getFileName } from './util/util'
 import './App.css'
 
 const APP_NAME = 'Flashcards'
 const DFLT_FILENAME = 'Untitled'
-
-const getFileName = (filePath: string | undefined) => {
-  return filePath ? path.basename(filePath) : undefined
-}
 
 const getDisplayFileName = (isDirty: boolean, filePath?: string): string => {
   const fileName = getFileName(filePath)
@@ -25,6 +21,8 @@ export default function App() {
   )
 
   useEffect(() => {
+    console.log(`***** filePath 2`, filePath)
+    console.log(`***** isDirty 2`, isDirty)
     document.title = getDisplayFileName(isDirty, filePath)
   }, [filePath, isDirty])
 
@@ -33,6 +31,7 @@ export default function App() {
   }, [isDirty])
 
   useEffect(() => {
+    console.log(`***** filePath 1`, filePath)
     window.electron.ipcRenderer.sendMessage(Channels.SetFilePath, [filePath])
   }, [filePath])
 

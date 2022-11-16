@@ -19,7 +19,8 @@ export enum Channels {
   AddCueCard = 'add-cuecard',
   SetDirty = 'set-dirty',
   SetFilePath = 'set-filepath',
-  UpdateState = 'update-state'
+  UpdateState = 'update-state',
+  SaveFile = 'save-file'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

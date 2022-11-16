@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { toast, ToastContainer } from 'react-toastify'
 import { Provider } from 'react-redux'
-import fs from 'fs'
 import { Channels } from '../main/util'
 import { toastOptions } from './util/util'
 import App from './App'
@@ -37,6 +36,10 @@ window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
 
 window.electron.ipcRenderer.on(Channels.AddCueCard, (cueCard) => {
   store.dispatch(addCueCard(cueCard as CueCard))
+})
+
+window.electron.ipcRenderer.on(Channels.SaveFile, (filePath) => {
+  store.dispatch(saveFile(filePath as string))
 })
 
 if (process) {
