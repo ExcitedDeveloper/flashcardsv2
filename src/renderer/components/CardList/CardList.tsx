@@ -3,8 +3,8 @@ import { AgGridReact } from 'ag-grid-react'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
-import { useAppSelector } from '../../redux/hooks'
-import { clearScrollAction } from '../../redux/cueCards'
+import { useAppSelector } from '../../../redux/hooks'
+import { clearScrollAction } from '../../../redux/cueCards'
 import Button from '../Button/Button'
 import {
   DEFAULT_WINDOW_HEIGHT,

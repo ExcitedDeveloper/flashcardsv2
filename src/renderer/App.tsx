@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { MemoryRouter as Router, Routes, Route } from 'react-router'
 import path from 'path'
-import { useAppSelector } from './redux/hooks'
+import { useAppSelector } from '../redux/hooks'
 import CardList from './components/CardList/CardList'
 import EditCard from './components/EditCard/EditCard'
 import { Channels } from '../main/util'
@@ -20,7 +20,9 @@ const getDisplayFileName = (isDirty: boolean, filePath?: string): string => {
 }
 
 export default function App() {
-  const { isDirty, filePath } = useAppSelector((state) => state.cueCards)
+  const { isDirty, filePath, cueCards } = useAppSelector(
+    (state) => state.cueCards
+  )
 
   useEffect(() => {
     document.title = getDisplayFileName(isDirty, filePath)
@@ -33,6 +35,16 @@ export default function App() {
   useEffect(() => {
     window.electron.ipcRenderer.sendMessage(Channels.SetFilePath, [filePath])
   }, [filePath])
+
+  useEffect(() => {
+    window.electron.ipcRenderer.sendMessage(Channels.UpdateState, [
+      {
+        filePath,
+        isDirty,
+        cueCards
+      }
+    ])
+  }, [filePath, isDirty, cueCards])
 
   return (
     <Router>

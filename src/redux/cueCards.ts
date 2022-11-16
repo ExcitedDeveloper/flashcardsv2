@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from './store'
-import CueCard from '../types/cueCard'
-import { ScrollAction } from '../types/scroll'
+import CueCard from '../renderer/types/cueCard'
+import { ScrollAction } from '../renderer/types/scroll'
 
 // Define a type for the slice state
 export interface CueCardsState {

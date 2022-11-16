@@ -5,13 +5,14 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
   dialog,
-  ipcMain,
-  ipcRenderer
+  ipcMain
 } from 'electron'
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { v4 as uuidv4 } from 'uuid'
+import { CueCardsState, saveFile } from '../redux/cueCards'
 import { Channels, displayToast } from './util'
+import { store } from '../redux/store'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
@@ -53,6 +54,13 @@ ipcMain.on(Channels.SetFilePath, async (_event, arg) => {
   filePath = arg && arg.length > 0 ? arg[0] : ''
 })
 
+let state: CueCardsState
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ipcMain.on(Channels.UpdateState, (_event, args) => {
+  state = args && args.length > 0 ? args[0] : {}
+})
+
 export default class MenuBuilder {
   mainWindow: BrowserWindow
 
@@ -75,9 +83,36 @@ export default class MenuBuilder {
             }
           ]
         })
+      }
 
-        if (currFilePath) {
-          this.mainWindow.webContents.send(Channels.SaveFile, currFilePath)
+      if (currFilePath) {
+        if (!state.cueCards || state.cueCards.length <= 0 || !currFilePath) {
+          return
+        }
+
+        try {
+          fs.writeFile(
+            currFilePath as string,
+            JSON.stringify(state.cueCards),
+            (err) => {
+              if (err) {
+                // eslint-disable-next-line no-console
+                console.error(err)
+                displayToast(this.mainWindow, 'Error trying to save file.')
+                return
+              }
+
+              if (currFilePath !== filePath) {
+                store.dispatch(saveFile(currFilePath as string))
+              }
+
+              displayToast(this.mainWindow, 'Successfully saved file.')
+            }
+          )
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error)
+          displayToast(this.mainWindow, 'Unknown error trying to save file.')
         }
       }
     } catch (error) {
