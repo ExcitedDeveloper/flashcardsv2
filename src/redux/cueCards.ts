@@ -41,6 +41,12 @@ export const cueCardsSlice = createSlice({
       state.shouldScroll = ScrollAction.Bottom
       state.isDirty = true
     },
+    editCueCard: (state, action: PayloadAction<CueCard>) => {
+      state.cueCards = state.cueCards.map((card) =>
+        card.id === action.payload.id ? action.payload : card
+      )
+      state.isDirty = true
+    },
     deleteCueCard: (state, action: PayloadAction<string>) => {
       state.cueCards = state.cueCards.filter(
         (card) => card.id !== action.payload
@@ -62,6 +68,7 @@ export const {
   setDirty,
   loadCueCards,
   addCueCard,
+  editCueCard,
   deleteCueCard,
   clearScrollAction,
   saveFile

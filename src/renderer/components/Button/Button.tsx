@@ -8,6 +8,7 @@ export interface ButtonProps {
   children: React.ReactNode
   className?: string
   style?: object
+  disabled?: boolean
 }
 
 const Button = ({
@@ -15,6 +16,7 @@ const Button = ({
   onClick,
   children,
   className,
+  disabled,
   ...rest
 }: ButtonProps) => {
   return (
@@ -25,6 +27,7 @@ const Button = ({
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...rest}
       className={className}
+      disabled={disabled}
     >
       {children}
     </button>
@@ -34,7 +37,8 @@ const Button = ({
 Button.defaultProps = {
   type: 'button',
   className: '',
-  style: {}
+  style: {},
+  disabled: false
 }
 
 export default Button

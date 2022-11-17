@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { AgGridReact } from 'ag-grid-react'
+import { RowSelectedEvent } from 'ag-grid-community'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
@@ -71,12 +73,17 @@ const CardList = () => {
   const size: Size = useWindowSize()
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [selectedRowId, setSelectedRowId] = useState()
 
   const handleScroll = () => {
     if (shouldScroll) {
       changeScroll(shouldScroll)
       dispatch(clearScrollAction())
     }
+  }
+
+  const handleRowSelected = (e: RowSelectedEvent) => {
+    setSelectedRowId(e.data.id)
   }
 
   return (
@@ -99,8 +106,9 @@ const CardList = () => {
           rowData={cueCards}
           columnDefs={columnDefs}
           onSortChanged={() => changeScroll(ScrollAction.Top)}
-          // onModelUpdated={handleScroll}
           onGridReady={handleScroll}
+          rowSelection="single"
+          onRowSelected={handleRowSelected}
         />
       </div>
       <div className="card-list-footer">
@@ -113,12 +121,17 @@ const CardList = () => {
               New Card
             </Button>
             <Button
-              onClick={() => navigate('/EditCard')}
+              onClick={() =>
+                navigate('/EditCard', { state: { selectedRowId } })
+              }
               className="margin-right-sm"
+              disabled={!selectedRowId}
             >
               Edit Card
             </Button>
-            <Button onClick={() => {}}>Delete Card</Button>
+            <Button onClick={() => {}} disabled={!selectedRowId}>
+              Delete Card
+            </Button>
           </div>
           <div className="card-list-study-button">
             <Button onClick={() => {}}>Study</Button>
