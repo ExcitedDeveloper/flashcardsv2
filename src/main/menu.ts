@@ -61,6 +61,11 @@ ipcMain.on(Channels.UpdateState, (_event, args) => {
   state = args && args.length > 0 ? args[0] : {}
 })
 
+enum SaveType {
+  Save,
+  SaveAs
+}
+
 export default class MenuBuilder {
   mainWindow: BrowserWindow
 
@@ -68,11 +73,11 @@ export default class MenuBuilder {
     this.mainWindow = mainWindow
   }
 
-  async handleSave(): Promise<void> {
+  saveFile(saveType: SaveType) {
     try {
       let currFilePath: string | undefined = filePath
 
-      if (!filePath) {
+      if (!filePath || saveType === SaveType.SaveAs) {
         currFilePath = dialog.showSaveDialogSync(this.mainWindow, {
           title: 'Select the file path to save',
           buttonLabel: 'Save',
@@ -125,57 +130,12 @@ export default class MenuBuilder {
     }
   }
 
+  async handleSave(): Promise<void> {
+    this.saveFile(SaveType.Save)
+  }
+
   async handleSaveAs(): Promise<void> {
-    try {
-      const currFilePath = dialog.showSaveDialogSync(this.mainWindow, {
-        title: 'Select the file path to save',
-        buttonLabel: 'Save As',
-        filters: [
-          {
-            name: 'Flashcard Files',
-            extensions: ['json']
-          }
-        ]
-      })
-
-      if (currFilePath) {
-        if (!state.cueCards || state.cueCards.length <= 0 || !currFilePath) {
-          return
-        }
-
-        try {
-          fs.writeFile(
-            currFilePath as string,
-            JSON.stringify(state.cueCards),
-            (err) => {
-              if (err) {
-                // eslint-disable-next-line no-console
-                console.error(err)
-                displayToast(this.mainWindow, 'Error trying to save file.')
-                return
-              }
-
-              this.mainWindow.webContents.send(
-                Channels.SaveFile,
-                getFileName(currFilePath)
-              )
-
-              displayToast(this.mainWindow, 'Successfully saved file.')
-            }
-          )
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(error)
-          displayToast(this.mainWindow, 'Unknown error trying to save file.')
-        }
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error)
-      dialog.showMessageBox(this.mainWindow, {
-        message: 'Unknown error in menu.ts::handleSave'
-      })
-    }
+    this.saveFile(SaveType.SaveAs)
   }
 
   async handleImport(): Promise<void> {
