@@ -21,8 +21,6 @@ export default function App() {
   )
 
   useEffect(() => {
-    console.log(`***** filePath 2`, filePath)
-    console.log(`***** isDirty 2`, isDirty)
     document.title = getDisplayFileName(isDirty, filePath)
   }, [filePath, isDirty])
 
@@ -31,7 +29,6 @@ export default function App() {
   }, [isDirty])
 
   useEffect(() => {
-    console.log(`***** filePath 1`, filePath)
     window.electron.ipcRenderer.sendMessage(Channels.SetFilePath, [filePath])
   }, [filePath])
 

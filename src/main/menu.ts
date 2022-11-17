@@ -102,13 +102,10 @@ export default class MenuBuilder {
                 return
               }
 
-              if (currFilePath !== filePath) {
-                // store.dispatch(saveFile(currFilePath as string))
-                this.mainWindow.webContents.send(
-                  Channels.SaveFile,
-                  getFileName(currFilePath)
-                )
-              }
+              this.mainWindow.webContents.send(
+                Channels.SaveFile,
+                getFileName(currFilePath)
+              )
 
               displayToast(this.mainWindow, 'Successfully saved file.')
             }
