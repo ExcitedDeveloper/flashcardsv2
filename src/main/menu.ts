@@ -125,6 +125,59 @@ export default class MenuBuilder {
     }
   }
 
+  async handleSaveAs(): Promise<void> {
+    try {
+      const currFilePath = dialog.showSaveDialogSync(this.mainWindow, {
+        title: 'Select the file path to save',
+        buttonLabel: 'Save As',
+        filters: [
+          {
+            name: 'Flashcard Files',
+            extensions: ['json']
+          }
+        ]
+      })
+
+      if (currFilePath) {
+        if (!state.cueCards || state.cueCards.length <= 0 || !currFilePath) {
+          return
+        }
+
+        try {
+          fs.writeFile(
+            currFilePath as string,
+            JSON.stringify(state.cueCards),
+            (err) => {
+              if (err) {
+                // eslint-disable-next-line no-console
+                console.error(err)
+                displayToast(this.mainWindow, 'Error trying to save file.')
+                return
+              }
+
+              this.mainWindow.webContents.send(
+                Channels.SaveFile,
+                getFileName(currFilePath)
+              )
+
+              displayToast(this.mainWindow, 'Successfully saved file.')
+            }
+          )
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error)
+          displayToast(this.mainWindow, 'Unknown error trying to save file.')
+        }
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
+      dialog.showMessageBox(this.mainWindow, {
+        message: 'Unknown error in menu.ts::handleSave'
+      })
+    }
+  }
+
   async handleImport(): Promise<void> {
     try {
       const { canceled, filePaths } = await dialog.showOpenDialog(
@@ -394,7 +447,7 @@ export default class MenuBuilder {
             label: '&Save As',
             accelerator: 'Ctrl+A',
             click: () => {
-              this.handleSave()
+              this.handleSaveAs()
             }
           },
           { type: 'separator' },
