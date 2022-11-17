@@ -6,7 +6,7 @@ import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
 import { useAppSelector } from '../../../redux/hooks'
-import { clearScrollAction } from '../../../redux/cueCards'
+import { clearScrollAction, deleteCueCard } from '../../../redux/cueCards'
 import Button from '../Button/Button'
 import {
   DEFAULT_WINDOW_HEIGHT,
@@ -86,6 +86,11 @@ const CardList = () => {
     setSelectedRowId(e.data.id)
   }
 
+  const handleDeleteCard = () => {
+    dispatch(deleteCueCard(selectedRowId || ''))
+    setSelectedRowId(undefined)
+  }
+
   return (
     <div
       className="card-list"
@@ -129,7 +134,7 @@ const CardList = () => {
             >
               Edit Card
             </Button>
-            <Button onClick={() => {}} disabled={!selectedRowId}>
+            <Button onClick={handleDeleteCard} disabled={!selectedRowId}>
               Delete Card
             </Button>
           </div>
