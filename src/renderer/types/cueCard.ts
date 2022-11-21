@@ -4,3 +4,8 @@ export default interface CueCard {
   answer: string
   history: string
 }
+
+export interface OpenFileInfo {
+  cueCards: CueCard[]
+  filePath: string
+}

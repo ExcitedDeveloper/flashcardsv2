@@ -20,7 +20,8 @@ export enum Channels {
   SetDirty = 'set-dirty',
   SetFilePath = 'set-filepath',
   UpdateState = 'update-state',
-  SaveFile = 'save-file'
+  SaveFile = 'save-file',
+  OpenFile = 'open-file'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

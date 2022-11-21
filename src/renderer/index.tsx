@@ -6,8 +6,8 @@ import { Channels } from '../main/util'
 import { toastOptions } from './util/util'
 import App from './App'
 import { store } from '../redux/store'
-import { addCueCard, loadCueCards, saveFile } from '../redux/cueCards'
-import CueCard from './types/cueCard'
+import { addCueCard, loadCueCards, saveFile, openFile } from '../redux/cueCards'
+import CueCard, { OpenFileInfo } from './types/cueCard'
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!
@@ -32,6 +32,10 @@ window.electron.ipcRenderer.on(Channels.DisplayToast, (arg) => {
 
 window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
   store.dispatch(loadCueCards(cueCards as CueCard[]))
+})
+
+window.electron.ipcRenderer.on(Channels.OpenFile, (arg) => {
+  store.dispatch(openFile(arg as OpenFileInfo))
 })
 
 window.electron.ipcRenderer.on(Channels.AddCueCard, (cueCard) => {

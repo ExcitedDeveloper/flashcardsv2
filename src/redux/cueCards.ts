@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from './store'
-import CueCard from '../renderer/types/cueCard'
+import CueCard, { OpenFileInfo } from '../renderer/types/cueCard'
 import { ScrollAction } from '../renderer/types/scroll'
 
 // Define a type for the slice state
@@ -25,15 +25,16 @@ export const cueCardsSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    openFile: (state, action: PayloadAction<string>) => {
-      state.filePath = action.payload
-      state.isDirty = false
-    },
     setDirty: (state, action: PayloadAction<boolean>) => {
       state.isDirty = action.payload
     },
     loadCueCards: (state, action: PayloadAction<CueCard[]>) => {
       state.cueCards = [...action.payload]
+      state.isDirty = false
+    },
+    openFile: (state, action: PayloadAction<OpenFileInfo>) => {
+      state.cueCards = [...action.payload.cueCards]
+      state.filePath = action.payload.filePath
       state.isDirty = false
     },
     addCueCard: (state, action: PayloadAction<CueCard>) => {

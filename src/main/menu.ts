@@ -10,6 +10,7 @@ import {
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { v4 as uuidv4 } from 'uuid'
+import { OpenFileInfo } from 'renderer/types/cueCard'
 import { CueCardsState } from '../redux/cueCards'
 import { Channels, displayToast } from './util'
 import { getFileName } from '../renderer/util/util'
@@ -203,6 +204,52 @@ export default class MenuBuilder {
     }
   }
 
+  async handleOpen(): Promise<void> {
+    try {
+      const { canceled, filePaths } = await dialog.showOpenDialog(
+        this.mainWindow,
+        {
+          title: 'Open File',
+          properties: ['openFile'],
+          filters: [
+            {
+              name: 'Flashcard',
+              extensions: ['json']
+            }
+          ]
+        }
+      )
+
+      if (canceled) {
+        return
+      }
+
+      fs.readFile(filePaths[0], (err, data) => {
+        if (err) {
+          displayToast(this.mainWindow, `An error occurred while opening file.`)
+          return
+        }
+
+        const json = JSON.parse(data.toString())
+
+        displayToast(this.mainWindow, `File was successfully opened.`)
+
+        const fileInfo: OpenFileInfo = {
+          cueCards: json,
+          filePath: getFileName(filePaths[0]) || ''
+        }
+
+        this.mainWindow.webContents.send(Channels.OpenFile, fileInfo)
+      })
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
+      dialog.showMessageBox(this.mainWindow, {
+        message: 'Unknown error in menu.ts::handleOpen'
+      })
+    }
+  }
+
   buildMenu(): Menu {
     if (
       process.env.NODE_ENV === 'development' ||
@@ -386,7 +433,10 @@ export default class MenuBuilder {
         submenu: [
           {
             label: '&Open',
-            accelerator: 'Ctrl+O'
+            accelerator: 'Ctrl+O',
+            click: () => {
+              this.handleOpen()
+            }
           },
           {
             label: '&Close',
