@@ -236,7 +236,7 @@ export default class MenuBuilder {
 
         const fileInfo: OpenFileInfo = {
           cueCards: json,
-          filePath: getFileName(filePaths[0]) || ''
+          filePath: filePaths[0]
         }
 
         this.mainWindow.webContents.send(Channels.OpenFile, fileInfo)

@@ -18,5 +18,5 @@ export const toastOptions: ToastOptions = {
 }
 
 export const getFileName = (filePath: string | undefined) => {
-  return filePath ? path.basename(filePath) : undefined
+  return filePath ? path.basename(filePath.replaceAll('\\', '/')) : undefined
 }
