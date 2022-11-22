@@ -60,6 +60,14 @@ export const cueCardsSlice = createSlice({
     saveFile: (state, action: PayloadAction<string>) => {
       state.filePath = action.payload
       state.isDirty = false
+    },
+    resetScores: (state) => {
+      state.cueCards = state.cueCards.map((card) => ({
+        ...card,
+        history: '',
+        score: ''
+      }))
+      state.isDirty = true
     }
   }
 })
@@ -72,7 +80,8 @@ export const {
   editCueCard,
   deleteCueCard,
   clearScrollAction,
-  saveFile
+  saveFile,
+  resetScores
 } = cueCardsSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type

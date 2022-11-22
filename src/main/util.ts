@@ -21,7 +21,8 @@ export enum Channels {
   SetFilePath = 'set-filepath',
   UpdateState = 'update-state',
   SaveFile = 'save-file',
-  OpenFile = 'open-file'
+  OpenFile = 'open-file',
+  ResetScores = 'reset-scores'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {

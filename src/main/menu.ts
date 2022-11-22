@@ -250,6 +250,10 @@ export default class MenuBuilder {
     }
   }
 
+  handleResetScores() {
+    this.mainWindow.webContents.send(Channels.ResetScores)
+  }
+
   buildMenu(): Menu {
     if (
       process.env.NODE_ENV === 'development' ||
@@ -480,6 +484,17 @@ export default class MenuBuilder {
                   }
                 }
               ]
+      },
+      {
+        label: '&Options',
+        submenu: [
+          {
+            label: '&Reset Scores',
+            click: () => {
+              this.handleResetScores()
+            }
+          }
+        ]
       }
     ]
 
