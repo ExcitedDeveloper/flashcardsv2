@@ -12,7 +12,7 @@ import {
   MENU_BAR_HEIGHT,
   FOOTER_HEIGHT
 } from '../../constants'
-import cueCards, { addCueCard, editCueCard } from '../../../redux/cueCards'
+import { addCueCard, editCueCard } from '../../../redux/cueCards'
 import { useAppSelector } from '../../../redux/hooks'
 import './EditCard.css'
 

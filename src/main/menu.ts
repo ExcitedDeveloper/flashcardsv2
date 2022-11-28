@@ -28,29 +28,6 @@ interface ImportCueCard {
 
 let filePath: string
 
-const getScore = (history: string): string => {
-  if (!history || history.length <= 0) {
-    return '0%'
-  }
-
-  const tries = history.length
-
-  // Get the number of successful tries
-  const successes = history.split('').reduce((acc: number, curr: string) => {
-    return curr === 'Y' ? acc + 1 : acc
-  }, 0)
-
-  // Score is successes divided by tries
-  let score = Math.floor((successes / tries) * 100)
-  if (score < 0) {
-    score = 0
-  } else if (score > 100) {
-    score = 100
-  }
-
-  return `${score}%`
-}
-
 ipcMain.on(Channels.SetFilePath, async (_event, arg) => {
   filePath = arg && arg.length > 0 ? arg[0] : ''
 })
@@ -179,8 +156,7 @@ export default class MenuBuilder {
             id: uuidv4(),
             question: card['@_Question'],
             answer: card['@_Answer'],
-            history: card['@_History'],
-            score: getScore(card['@_History'])
+            history: card['@_History']
           })) || []
 
         if (!cueCards) {

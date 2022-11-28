@@ -4,12 +4,19 @@ import type { RootState } from './store'
 import CueCard, { OpenFileInfo } from '../renderer/types/cueCard'
 import { ScrollAction } from '../renderer/types/scroll'
 
+export enum StudyStatus {
+  Question,
+  Answer
+}
+
 // Define a type for the slice state
 export interface CueCardsState {
   filePath?: string
   isDirty: boolean
   cueCards: CueCard[]
   shouldScroll?: ScrollAction
+  studyMode?: StudyStatus
+  studyCueCardIndex?: number
 }
 
 // Define the initial state using that type
@@ -17,7 +24,9 @@ const initialState: CueCardsState = {
   cueCards: [],
   shouldScroll: undefined,
   filePath: undefined,
-  isDirty: false
+  isDirty: false,
+  studyMode: undefined,
+  studyCueCardIndex: undefined
 }
 
 export const cueCardsSlice = createSlice({
@@ -31,11 +40,13 @@ export const cueCardsSlice = createSlice({
     loadCueCards: (state, action: PayloadAction<CueCard[]>) => {
       state.cueCards = [...action.payload]
       state.isDirty = false
+      state.studyMode = undefined
     },
     openFile: (state, action: PayloadAction<OpenFileInfo>) => {
       state.cueCards = [...action.payload.cueCards]
       state.filePath = action.payload.filePath
       state.isDirty = false
+      state.studyMode = undefined
     },
     addCueCard: (state, action: PayloadAction<CueCard>) => {
       state.cueCards = [...state.cueCards, action.payload]
@@ -68,6 +79,28 @@ export const cueCardsSlice = createSlice({
         score: ''
       }))
       state.isDirty = true
+    },
+    setStudyMode: (state, action: PayloadAction<StudyStatus | undefined>) => {
+      state.studyMode = action.payload
+    },
+    startStudying: (state) => {
+      state.studyMode = StudyStatus.Question
+      state.studyCueCardIndex = 0
+    },
+    answerQuestion: (state, action: PayloadAction<boolean>) => {
+      state.studyMode = StudyStatus.Question
+      state.cueCards = state.cueCards.map((card, index) => {
+        if (index === state.studyCueCardIndex) {
+          card.history += action.payload ? 'Y' : 'N'
+        }
+
+        return card
+      })
+      state.studyCueCardIndex =
+        state.studyCueCardIndex === undefined ||
+        state.studyCueCardIndex + 1 >= state.cueCards.length
+          ? undefined
+          : state.studyCueCardIndex + 1
     }
   }
 })
@@ -81,7 +114,10 @@ export const {
   deleteCueCard,
   clearScrollAction,
   saveFile,
-  resetScores
+  resetScores,
+  setStudyMode,
+  startStudying,
+  answerQuestion
 } = cueCardsSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type

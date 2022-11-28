@@ -3,6 +3,7 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router'
 import { useAppSelector } from '../redux/hooks'
 import CardList from './components/CardList/CardList'
 import EditCard from './components/EditCard/EditCard'
+import Study from './components/Study/Study'
 import { Channels } from '../main/util'
 import { getFileName } from './util/util'
 import './App.css'
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/" element={<CardList />} />
         <Route path="/AddCard" element={<EditCard />} />
         <Route path="/EditCard" element={<EditCard />} />
+        <Route path="/Study" element={<Study />} />
       </Routes>
     </Router>
   )

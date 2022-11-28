@@ -1,12 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { AgGridReact } from 'ag-grid-react'
 import { RowSelectedEvent } from 'ag-grid-community'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
+import CueCard from 'renderer/types/cueCard'
 import { useAppSelector } from '../../../redux/hooks'
-import { clearScrollAction, deleteCueCard } from '../../../redux/cueCards'
+import {
+  clearScrollAction,
+  deleteCueCard,
+  startStudying
+} from '../../../redux/cueCards'
 import Button from '../Button/Button'
 import {
   DEFAULT_WINDOW_HEIGHT,
@@ -74,6 +79,39 @@ const CardList = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [selectedRowId, setSelectedRowId] = useState()
+  const [cueCardsWithScores, setCueCardsWithScores] = useState<CueCard[]>([])
+
+  const getScore = (history: string): string => {
+    if (!history || history.length <= 0) {
+      return ''
+    }
+
+    const tries = history.length
+
+    // Get the number of successful tries
+    const successes = history.split('').reduce((acc: number, curr: string) => {
+      return curr === 'Y' ? acc + 1 : acc
+    }, 0)
+
+    // Score is successes divided by tries
+    let score = Math.floor((successes / tries) * 100)
+    if (score < 0) {
+      score = 0
+    } else if (score > 100) {
+      score = 100
+    }
+
+    return `${score}%`
+  }
+
+  useEffect(() => {
+    const withScores = cueCards.map((card) => ({
+      ...card,
+      score: getScore(card.history)
+    }))
+
+    setCueCardsWithScores(withScores)
+  }, [cueCards])
 
   const handleScroll = () => {
     if (shouldScroll) {
@@ -89,6 +127,11 @@ const CardList = () => {
   const handleDeleteCard = () => {
     dispatch(deleteCueCard(selectedRowId || ''))
     setSelectedRowId(undefined)
+  }
+
+  const handleStudy = () => {
+    dispatch(startStudying())
+    navigate('/Study')
   }
 
   return (
@@ -108,7 +151,7 @@ const CardList = () => {
         }}
       >
         <AgGridReact
-          rowData={cueCards}
+          rowData={cueCardsWithScores}
           columnDefs={columnDefs}
           onSortChanged={() => changeScroll(ScrollAction.Top)}
           onGridReady={handleScroll}
@@ -139,7 +182,9 @@ const CardList = () => {
             </Button>
           </div>
           <div className="card-list-study-button">
-            <Button onClick={() => {}}>Study</Button>
+            <Button onClick={handleStudy} disabled={cueCards.length <= 0}>
+              Study
+            </Button>
           </div>
         </div>
       </div>
