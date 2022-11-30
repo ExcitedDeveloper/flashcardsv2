@@ -1,7 +1,6 @@
 import {
   app,
   Menu,
-  shell,
   BrowserWindow,
   MenuItemConstructorOptions,
   dialog,
@@ -12,7 +11,7 @@ import { XMLParser } from 'fast-xml-parser'
 import { v4 as uuidv4 } from 'uuid'
 import { OpenFileInfo } from 'renderer/types/cueCard'
 import { CueCardsState } from '../redux/cueCards'
-import { Channels, displayToast } from './util'
+import { Channels, displayToast, addFileToRecents } from './util'
 import { getFileName } from '../renderer/util/util'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -215,6 +214,9 @@ export default class MenuBuilder {
           filePath: filePaths[0]
         }
 
+        // Add the file just opened to recents in localStorage
+        addFileToRecents(this.mainWindow, fileInfo.filePath)
+
         this.mainWindow.webContents.send(Channels.OpenFile, fileInfo)
       })
     } catch (error) {
@@ -238,6 +240,7 @@ export default class MenuBuilder {
       this.setupDevelopmentEnvironment()
     }
 
+    console.log('***** build Template')
     const template =
       process.platform === 'darwin'
         ? this.buildDarwinTemplate()
@@ -473,6 +476,20 @@ export default class MenuBuilder {
         ]
       }
     ]
+
+    console.log('***** buildDefaultTemplate')
+    // const recents = this.mainWindow.localStorage.getItem('cuecards-recents')
+
+    // console.log(`***** recents`, recents)
+
+    // eslint-disable-next-line promise/catch-or-return
+    // this.mainWindow.webContents
+    //   .executeJavaScript('localStorage.getItem("cuecards-recents");', true)
+    //   // eslint-disable-next-line promise/always-return
+    //   .then((result) => {
+    //     console.log(`***** result 2`, result)
+    //     console.log(`***** result JSON 2`, JSON.parse(result))
+    //   })
 
     return templateDefault
   }
