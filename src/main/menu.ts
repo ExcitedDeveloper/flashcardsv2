@@ -121,6 +121,34 @@ export default class MenuBuilder {
     this.saveFile(SaveType.SaveAs)
   }
 
+  openFile(newFilePath: string) {
+    try {
+      fs.readFile(newFilePath, (err, data) => {
+        if (err) {
+          displayToast(this.mainWindow, `An error occurred while opening file.`)
+          return
+        }
+
+        const json = JSON.parse(data.toString())
+
+        displayToast(this.mainWindow, `File was successfully opened.`)
+
+        const fileInfo: OpenFileInfo = {
+          cueCards: json,
+          filePath: newFilePath
+        }
+
+        // Add the file just opened to recents in localStorage
+        this.addFileToRecents(fileInfo.filePath)
+
+        this.mainWindow.webContents.send(Channels.OpenFile, fileInfo)
+      })
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`menu.ts::fileOpen`, error)
+    }
+  }
+
   async handleImport(): Promise<void> {
     try {
       const { canceled, filePaths } = await dialog.showOpenDialog(
@@ -141,41 +169,7 @@ export default class MenuBuilder {
         return
       }
 
-      fs.readFile(filePaths[0], (err, data) => {
-        if (err) {
-          displayToast(
-            this.mainWindow,
-            `An error occurred while importing file.`
-          )
-          return
-        }
-
-        const parser = new XMLParser({
-          ignoreAttributes: false
-        })
-
-        const json = parser.parse(data)
-
-        const cueCards =
-          json.CueCards?.Card?.map((card: ImportCueCard) => ({
-            id: uuidv4(),
-            question: card['@_Question'],
-            answer: card['@_Answer'],
-            history: card['@_History']
-          })) || []
-
-        if (!cueCards) {
-          displayToast(
-            this.mainWindow,
-            `An error occurred while parsing import file.`
-          )
-          return
-        }
-
-        displayToast(this.mainWindow, `File was successfully imported.`)
-
-        this.mainWindow.webContents.send(Channels.LoadCueCards, cueCards)
-      })
+      this.openFile(filePaths[0])
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
@@ -545,7 +539,7 @@ export default class MenuBuilder {
       templateDefault[0].submenu.push({
         label: recent.label,
         click: async () => {
-          console.log(`***** open ${recent.filePath}`)
+          this.openFile(recent.filePath)
         }
       })
     })

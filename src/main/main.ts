@@ -13,7 +13,6 @@ import path from 'path'
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
-import Store from 'electron-store'
 import MenuBuilder from './menu'
 import { resolveHtmlPath, Channels } from './util'
 
@@ -100,7 +99,8 @@ const createWindow = async () => {
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js')
+        : path.join(__dirname, '../../.erb/dll/preload.js'),
+      devTools: false
     }
   })
 
@@ -120,19 +120,21 @@ const createWindow = async () => {
   mainWindow.on('close', (e) => {
     e.preventDefault()
 
+    let buttonIndex
+
     if (isDirty) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const buttonIndex = dialog.showMessageBoxSync({
+      buttonIndex = dialog.showMessageBoxSync({
         type: 'question',
         title: 'Confirmation',
         message: 'File is has been modified.  Are you sure you want to quit?',
         buttons: ['Yes', 'No']
       })
+    }
 
-      if (buttonIndex === 0) {
-        mainWindow?.destroy()
-        app.quit()
-      }
+    if (!isDirty || (isDirty && buttonIndex === 0)) {
+      mainWindow?.destroy()
+      app.quit()
     }
   })
 
