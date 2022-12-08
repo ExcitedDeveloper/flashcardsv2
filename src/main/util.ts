@@ -37,27 +37,23 @@ export interface RecentFile {
   filePath: string
 }
 
-export const getRecents = async (
-  mainWindow: BrowserWindow
-): Promise<RecentFile[]> => {
-  const result: string = await mainWindow.webContents.executeJavaScript(
-    'localStorage.getItem("cuecards-recents");',
-    true
-  )
+export const getRecents = (): RecentFile[] => {
+  // const result: string = await mainWindow.webContents.executeJavaScript(
+  //   'localStorage.getItem("cuecards-recents");',
+  //   true
+  // )
+  const result: string = window.electron.store.get('cuecards-recents') as string
 
   return result ? JSON.parse(result) : []
 }
 
-export const addFileToRecents = async (
-  mainWindow: BrowserWindow,
-  filePath: string
-): Promise<RecentFile[]> => {
+export const addFileToRecents = (filePath: string): RecentFile[] => {
   // If filePath has back slashes, replace with
   // forward slashes.
   const fwdFilePath = filePath.replaceAll(/\\/g, '/')
 
   // Get the current array of recent files
-  let recents = await getRecents(mainWindow)
+  let recents = getRecents()
 
   // Check if fwdFilePath is already in the
   // recent files.  If it is remove it.
@@ -90,10 +86,11 @@ export const addFileToRecents = async (
 
   // Update localStorage with the updated
   // recents array
-  mainWindow.webContents.executeJavaScript(
-    `localStorage.setItem("cuecards-recents", '${JSON.stringify(recents)}');`,
-    true
-  )
+  // mainWindow.webContents.executeJavaScript(
+  //   `localStorage.setItem("cuecards-recents", '${JSON.stringify(recents)}');`,
+  //   true
+  // )
+  window.electron.store.set('cuecards-recents', recents)
 
   return recents
 }

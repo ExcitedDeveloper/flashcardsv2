@@ -80,6 +80,7 @@
     "ag-grid-react": "^28.2.0",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
+    "electron-store": "^8.1.0",
     "electron-updater": "^5.2.3",
     "fast-xml-parser": "^4.0.11",
     "keyv": "^4.5.0",

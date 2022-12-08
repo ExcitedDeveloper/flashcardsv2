@@ -10,9 +10,12 @@ import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { v4 as uuidv4 } from 'uuid'
 import { OpenFileInfo } from 'renderer/types/cueCard'
+import Store from 'electron-store'
 import { CueCardsState } from '../redux/cueCards'
-import { Channels, displayToast, addFileToRecents } from './util'
+import { Channels, displayToast, RecentFile } from './util'
 import { getFileName } from '../renderer/util/util'
+
+const MAX_RECENTS = 5
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
@@ -46,8 +49,11 @@ enum SaveType {
 export default class MenuBuilder {
   mainWindow: BrowserWindow
 
+  store: Store<Record<string, unknown>>
+
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow
+    this.store = new Store()
   }
 
   saveFile(saveType: SaveType) {
@@ -215,7 +221,7 @@ export default class MenuBuilder {
         }
 
         // Add the file just opened to recents in localStorage
-        addFileToRecents(this.mainWindow, fileInfo.filePath)
+        this.addFileToRecents(fileInfo.filePath)
 
         this.mainWindow.webContents.send(Channels.OpenFile, fileInfo)
       })
@@ -378,8 +384,69 @@ export default class MenuBuilder {
     return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow]
   }
 
+  getRecents(): RecentFile[] {
+    // const result: string = await mainWindow.webContents.executeJavaScript(
+    //   'localStorage.getItem("cuecards-recents");',
+    //   true
+    // )
+    const result: RecentFile[] = this.store.get(
+      'cuecards-recents'
+    ) as RecentFile[]
+
+    return result || []
+  }
+
+  addFileToRecents(newFilePath: string): RecentFile[] {
+    // If filePath has back slashes, replace with
+    // forward slashes.
+    const fwdFilePath = newFilePath.replaceAll(/\\/g, '/')
+
+    // Get the current array of recent files
+    let recents = this.getRecents()
+
+    // Check if fwdFilePath is already in the
+    // recent files.  If it is remove it.
+    recents = recents.filter((file) => file.filePath !== fwdFilePath)
+
+    // If recents is too big, take the first
+    // MAX_RECENTS minus one to leave room
+    // for the new recent
+    if (recents.length >= MAX_RECENTS) {
+      recents = recents.slice(0, MAX_RECENTS - 1)
+    }
+
+    const fileName = getFileName(fwdFilePath)
+
+    if (!fileName) {
+      // eslint-disable-next-line no-console
+      console.error('getFileName returned an invalid string.')
+      return []
+    }
+
+    // Create the new recent
+    const newRecent: RecentFile = {
+      label: fileName,
+      filePath: fwdFilePath
+    }
+
+    // Add the new recent to the front of
+    // the recents array
+    recents = [newRecent, ...recents]
+
+    // Update localStorage with the updated
+    // recents array
+    // mainWindow.webContents.executeJavaScript(
+    //   `localStorage.setItem("cuecards-recents", '${JSON.stringify(recents)}');`,
+    //   true
+    // )
+    this.store.set('cuecards-recents', recents)
+
+    return recents
+  }
+
   buildDefaultTemplate() {
-    const templateDefault = [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const templateDefault: any[] = [
       {
         label: '&File',
         submenu: [
@@ -490,6 +557,23 @@ export default class MenuBuilder {
     //     console.log(`***** result 2`, result)
     //     console.log(`***** result JSON 2`, JSON.parse(result))
     //   })
+
+    const recents = this.getRecents()
+
+    console.log(`*************** recents`, recents)
+
+    // if (recents.length > 0) {
+    //   templateDefault[0].submenu.push({ type: 'separator' })
+    // }
+
+    // recents.forEach((recent) => {
+    //   templateDefault[0].submenu.push({
+    //     label: recent.label,
+    //     click: async () => {
+    //       console.log(`***** open ${recent.filePath}`)
+    //     }
+    //   })
+    // })
 
     return templateDefault
   }

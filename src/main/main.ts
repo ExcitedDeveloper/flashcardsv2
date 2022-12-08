@@ -13,6 +13,7 @@ import path from 'path'
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import Store from 'electron-store'
 import MenuBuilder from './menu'
 import { resolveHtmlPath, Channels } from './util'
 
@@ -30,6 +31,16 @@ let isDirty = false
 
 ipcMain.on(Channels.SetDirty, async (_event, arg) => {
   isDirty = arg && arg.length > 0 ? arg[0] : false
+})
+
+const store = new Store()
+
+ipcMain.on('electron-store-get', async (event, val) => {
+  event.returnValue = store.get(val)
+})
+
+ipcMain.on('electron-store-set', async (event, key, val) => {
+  store.set(key, val)
 })
 
 if (process.env.NODE_ENV === 'production') {

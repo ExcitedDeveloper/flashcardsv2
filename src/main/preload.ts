@@ -18,6 +18,15 @@ contextBridge.exposeInMainWorld('electron', {
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args))
     }
+  },
+  store: {
+    get(key: string) {
+      return ipcRenderer.sendSync('electron-store-get', key)
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    set(property: any, val: any) {
+      ipcRenderer.send('electron-store-set', property, val)
+    }
   }
 })
 
