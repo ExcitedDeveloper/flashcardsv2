@@ -246,7 +246,6 @@ export default class MenuBuilder {
       this.setupDevelopmentEnvironment()
     }
 
-    console.log('***** build Template')
     const template =
       process.platform === 'darwin'
         ? this.buildDarwinTemplate()
@@ -385,10 +384,6 @@ export default class MenuBuilder {
   }
 
   getRecents(): RecentFile[] {
-    // const result: string = await mainWindow.webContents.executeJavaScript(
-    //   'localStorage.getItem("cuecards-recents");',
-    //   true
-    // )
     const result: RecentFile[] = this.store.get(
       'cuecards-recents'
     ) as RecentFile[]
@@ -433,13 +428,9 @@ export default class MenuBuilder {
     // the recents array
     recents = [newRecent, ...recents]
 
-    // Update localStorage with the updated
-    // recents array
-    // mainWindow.webContents.executeJavaScript(
-    //   `localStorage.setItem("cuecards-recents", '${JSON.stringify(recents)}');`,
-    //   true
-    // )
     this.store.set('cuecards-recents', recents)
+
+    this.buildMenu()
 
     return recents
   }
@@ -544,36 +535,20 @@ export default class MenuBuilder {
       }
     ]
 
-    console.log('***** buildDefaultTemplate')
-    // const recents = this.mainWindow.localStorage.getItem('cuecards-recents')
-
-    // console.log(`***** recents`, recents)
-
-    // eslint-disable-next-line promise/catch-or-return
-    // this.mainWindow.webContents
-    //   .executeJavaScript('localStorage.getItem("cuecards-recents");', true)
-    //   // eslint-disable-next-line promise/always-return
-    //   .then((result) => {
-    //     console.log(`***** result 2`, result)
-    //     console.log(`***** result JSON 2`, JSON.parse(result))
-    //   })
-
     const recents = this.getRecents()
 
-    console.log(`*************** recents`, recents)
+    if (recents.length > 0) {
+      templateDefault[0].submenu.push({ type: 'separator' })
+    }
 
-    // if (recents.length > 0) {
-    //   templateDefault[0].submenu.push({ type: 'separator' })
-    // }
-
-    // recents.forEach((recent) => {
-    //   templateDefault[0].submenu.push({
-    //     label: recent.label,
-    //     click: async () => {
-    //       console.log(`***** open ${recent.filePath}`)
-    //     }
-    //   })
-    // })
+    recents.forEach((recent) => {
+      templateDefault[0].submenu.push({
+        label: recent.label,
+        click: async () => {
+          console.log(`***** open ${recent.filePath}`)
+        }
+      })
+    })
 
     return templateDefault
   }
