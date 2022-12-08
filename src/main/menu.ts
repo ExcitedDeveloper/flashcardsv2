@@ -7,25 +7,28 @@ import {
   ipcMain
 } from 'electron'
 import fs from 'fs'
-import { XMLParser } from 'fast-xml-parser'
-import { v4 as uuidv4 } from 'uuid'
 import { OpenFileInfo } from 'renderer/types/cueCard'
 import Store from 'electron-store'
 import { CueCardsState } from '../redux/cueCards'
-import { Channels, displayToast, RecentFile } from './util'
+import { Channels, displayToast } from './util'
 import { getFileName } from '../renderer/util/util'
 
 const MAX_RECENTS = 5
+
+interface RecentFile {
+  label: string
+  filePath: string
+}
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
 }
 
-interface ImportCueCard {
-  '@_Question': string
-  '@_Answer': string
-  '@_History': string
+enum SaveFileChoice {
+  Yes = 0,
+  No = 1,
+  Cancel = 2
 }
 
 let filePath: string
@@ -123,6 +126,25 @@ export default class MenuBuilder {
 
   openFile(newFilePath: string) {
     try {
+      if (state.isDirty) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const buttonIndex = dialog.showMessageBoxSync({
+          type: 'question',
+          title: 'Confirmation',
+          message:
+            'The current file has unsaved changes.  Do you want to save them?',
+          buttons: ['Yes', 'No', 'Cancel']
+        })
+
+        if (buttonIndex === SaveFileChoice.Cancel) {
+          return
+        }
+
+        if (buttonIndex === SaveFileChoice.Yes) {
+          this.handleSave()
+        }
+      }
+
       fs.readFile(newFilePath, (err, data) => {
         if (err) {
           displayToast(this.mainWindow, `An error occurred while opening file.`)
