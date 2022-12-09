@@ -10,7 +10,7 @@ import fs from 'fs'
 import { OpenFileInfo } from 'renderer/types/cueCard'
 import Store from 'electron-store'
 import { CueCardsState } from '../redux/cueCards'
-import { Channels, displayToast } from './util'
+import { Channels, displayToast, SaveFileChoice } from './util'
 import { getFileName } from '../renderer/util/util'
 
 const MAX_RECENTS = 5
@@ -23,12 +23,6 @@ interface RecentFile {
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
-}
-
-enum SaveFileChoice {
-  Yes = 0,
-  No = 1,
-  Cancel = 2
 }
 
 let filePath: string

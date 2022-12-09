@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
@@ -13,8 +14,17 @@ import path from 'path'
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import fs from 'fs'
 import MenuBuilder from './menu'
-import { resolveHtmlPath, Channels } from './util'
+import {
+  resolveHtmlPath,
+  Channels,
+  SaveFileChoice,
+  SaveType,
+  displayToast
+} from './util'
+import { CueCardsState } from '../redux/cueCards'
+import { getFileName } from '../renderer/util/util'
 
 class AppUpdater {
   constructor() {
@@ -26,10 +36,11 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null
 
-let isDirty = false
+let state: CueCardsState
 
-ipcMain.on(Channels.SetDirty, async (_event, arg) => {
-  isDirty = arg && arg.length > 0 ? arg[0] : false
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ipcMain.on(Channels.UpdateState, (_event, args) => {
+  state = args && args.length > 0 ? args[0] : {}
 })
 
 if (process.env.NODE_ENV === 'production') {
@@ -100,7 +111,7 @@ const createWindow = async () => {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
-      devTools: false
+      devTools: true
     }
   })
 
@@ -117,25 +128,91 @@ const createWindow = async () => {
     }
   })
 
+  const saveFile = (saveType: SaveType) => {
+    if (mainWindow === null) return
+
+    try {
+      let currFilePath: string | undefined = state.filePath
+
+      if (!state.filePath || saveType === SaveType.SaveAs) {
+        currFilePath = dialog.showSaveDialogSync(mainWindow, {
+          title: 'Select the file path to save',
+          buttonLabel: 'Save',
+          filters: [
+            {
+              name: 'Flashcard Files',
+              extensions: ['json']
+            }
+          ]
+        })
+      }
+
+      if (currFilePath) {
+        if (!state.cueCards || state.cueCards.length <= 0 || !currFilePath) {
+          return
+        }
+
+        try {
+          fs.writeFile(
+            currFilePath as string,
+            JSON.stringify(state.cueCards),
+            (err) => {
+              if (err) {
+                // eslint-disable-next-line no-console
+                console.error(err)
+                displayToast(mainWindow!, 'Error trying to save file.')
+                return
+              }
+
+              mainWindow!.webContents.send(
+                Channels.SaveFile,
+                getFileName(currFilePath)
+              )
+
+              displayToast(mainWindow!, 'Successfully saved file.')
+            }
+          )
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error)
+          displayToast(mainWindow, 'Unknown error trying to save file.')
+        }
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
+      dialog.showMessageBox(mainWindow, {
+        message: 'Unknown error in menu.ts::handleSave'
+      })
+    }
+  }
+
   mainWindow.on('close', (e) => {
     e.preventDefault()
 
     let buttonIndex
 
-    if (isDirty) {
+    if (mainWindow && state?.filePath && state?.isDirty) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       buttonIndex = dialog.showMessageBoxSync({
         type: 'question',
         title: 'Confirmation',
-        message: 'File is has been modified.  Are you sure you want to quit?',
-        buttons: ['Yes', 'No']
+        message:
+          'The current file has unsaved changes.  Do you want to save them?',
+        buttons: ['Yes', 'No', 'Cancel']
       })
+
+      if (buttonIndex === SaveFileChoice.Cancel) {
+        return
+      }
+
+      if (buttonIndex === SaveFileChoice.Yes) {
+        saveFile(SaveType.Save, mainWindow, state.filePath, state.cueCards)
+      }
     }
 
-    if (!isDirty || (isDirty && buttonIndex === 0)) {
-      mainWindow?.destroy()
-      app.quit()
-    }
+    mainWindow?.destroy()
+    app.quit()
   })
 
   mainWindow.on('closed', async () => {

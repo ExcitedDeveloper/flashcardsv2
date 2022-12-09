@@ -28,3 +28,14 @@ export enum Channels {
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {
   mainWindow.webContents.send(Channels.DisplayToast, message)
 }
+
+export enum SaveFileChoice {
+  Yes = 0,
+  No = 1,
+  Cancel = 2
+}
+
+export enum SaveType {
+  Save,
+  SaveAs
+}

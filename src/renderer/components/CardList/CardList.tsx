@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
-import { AgGridReact } from 'ag-grid-react'
+import { AgGridReact, ModelUpdatedEvent, RowNode, GridApi } from 'ag-grid-react'
 import { RowSelectedEvent } from 'ag-grid-community'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useNavigate } from 'react-router'
@@ -10,7 +10,9 @@ import { useAppSelector } from '../../../redux/hooks'
 import {
   clearScrollAction,
   deleteCueCard,
-  startStudying
+  startStudying,
+  loadCueCards,
+  setDirty
 } from '../../../redux/cueCards'
 import Button from '../Button/Button'
 import {
@@ -80,6 +82,7 @@ const CardList = () => {
   const dispatch = useDispatch()
   const [selectedRowId, setSelectedRowId] = useState()
   const [cueCardsWithScores, setCueCardsWithScores] = useState<CueCard[]>([])
+  const [gridApi, setGridApi] = useState<GridApi>()
 
   const getScore = (history: string): string => {
     if (!history || history.length <= 0) {
@@ -134,6 +137,20 @@ const CardList = () => {
     navigate('/Study')
   }
 
+  const handleSortChanged = () => {
+    changeScroll(ScrollAction.Top)
+
+    if (gridApi) {
+      const rowData: CueCard[] = []
+
+      gridApi.forEachNodeAfterFilterAndSort((node: RowNode) =>
+        rowData.push(node.data)
+      )
+
+      dispatch(loadCueCards(rowData))
+    }
+  }
+
   return (
     <div
       className="card-list"
@@ -153,10 +170,23 @@ const CardList = () => {
         <AgGridReact
           rowData={cueCardsWithScores}
           columnDefs={columnDefs}
-          onSortChanged={() => changeScroll(ScrollAction.Top)}
+          onSortChanged={handleSortChanged}
           onGridReady={handleScroll}
           rowSelection="single"
           onRowSelected={handleRowSelected}
+          onModelUpdated={(e: ModelUpdatedEvent) => {
+            const { api } = e
+
+            setGridApi(api)
+
+            // const rowData: CueCard[] = []
+
+            // gridApi.forEachNodeAfterFilterAndSort((node: RowNode) =>
+            //   rowData.push(node.data)
+            // )
+
+            // dispatch(loadCueCards(rowData))
+          }}
         />
       </div>
       <div className="card-list-footer">
