@@ -207,7 +207,7 @@ const createWindow = async () => {
       }
 
       if (buttonIndex === SaveFileChoice.Yes) {
-        saveFile(SaveType.Save, mainWindow, state.filePath, state.cueCards)
+        saveFile(SaveType.Save)
       }
     }
 
