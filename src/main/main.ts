@@ -164,10 +164,7 @@ const createWindow = async () => {
                 return
               }
 
-              mainWindow!.webContents.send(
-                Channels.SaveFile,
-                getFileName(currFilePath)
-              )
+              mainWindow!.webContents.send(Channels.SaveFile, currFilePath)
 
               displayToast(mainWindow!, 'Successfully saved file.')
             }

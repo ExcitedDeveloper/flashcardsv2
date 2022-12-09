@@ -87,10 +87,7 @@ export default class MenuBuilder {
                 return
               }
 
-              this.mainWindow.webContents.send(
-                Channels.SaveFile,
-                getFileName(currFilePath)
-              )
+              this.mainWindow.webContents.send(Channels.SaveFile, currFilePath)
 
               displayToast(this.mainWindow, 'Successfully saved file.')
             }
