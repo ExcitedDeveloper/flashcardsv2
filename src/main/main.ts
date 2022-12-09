@@ -24,7 +24,6 @@ import {
   displayToast
 } from './util'
 import { CueCardsState } from '../redux/cueCards'
-import { getFileName } from '../renderer/util/util'
 
 class AppUpdater {
   constructor() {

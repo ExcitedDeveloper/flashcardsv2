@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
-import { AgGridReact, ModelUpdatedEvent, RowNode, GridApi } from 'ag-grid-react'
-import { RowSelectedEvent } from 'ag-grid-community'
+import { AgGridReact } from 'ag-grid-react'
+import {
+  RowSelectedEvent,
+  ModelUpdatedEvent,
+  RowNode,
+  GridApi
+} from 'ag-grid-community'
 import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
 import { useNavigate } from 'react-router'
 import { useDispatch } from 'react-redux'
@@ -11,8 +16,7 @@ import {
   clearScrollAction,
   deleteCueCard,
   startStudying,
-  loadCueCards,
-  setDirty
+  loadCueCards
 } from '../../../redux/cueCards'
 import Button from '../Button/Button'
 import {
