@@ -11,7 +11,8 @@ import {
   loadCueCards,
   saveFile,
   openFile,
-  resetScores
+  resetScores,
+  newFile
 } from '../redux/cueCards'
 import CueCard, { OpenFileInfo } from './types/cueCard'
 
@@ -42,6 +43,10 @@ window.electron.ipcRenderer.on(Channels.LoadCueCards, (cueCards) => {
 
 window.electron.ipcRenderer.on(Channels.OpenFile, (arg) => {
   store.dispatch(openFile(arg as OpenFileInfo))
+})
+
+window.electron.ipcRenderer.on(Channels.NewFile, () => {
+  store.dispatch(newFile())
 })
 
 window.electron.ipcRenderer.on(Channels.AddCueCard, (cueCard) => {

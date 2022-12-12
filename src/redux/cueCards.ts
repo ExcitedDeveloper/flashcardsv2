@@ -41,6 +41,13 @@ export const cueCardsSlice = createSlice({
       state.cueCards = [...action.payload]
       state.isDirty = true
       state.studyMode = undefined
+      state.filePath = undefined
+    },
+    newFile: (state) => {
+      state.cueCards = []
+      state.filePath = undefined
+      state.isDirty = false
+      state.studyMode = undefined
     },
     openFile: (state, action: PayloadAction<OpenFileInfo>) => {
       state.cueCards = [...action.payload.cueCards]
@@ -107,6 +114,7 @@ export const cueCardsSlice = createSlice({
 })
 
 export const {
+  newFile,
   openFile,
   setDirty,
   loadCueCards,

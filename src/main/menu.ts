@@ -95,7 +95,19 @@ export default class MenuBuilder {
                 return
               }
 
-              this.mainWindow.webContents.send(Channels.SaveFile, currFilePath)
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              this.addFileToRecents(currFilePath!)
+
+              if (state.filePath !== currFilePath) {
+                // The file being saved is either a new file or
+                // a SaveAs
+                this.mainWindow.webContents.send(
+                  Channels.SaveFile,
+                  currFilePath
+                )
+              } else {
+                this.mainWindow.webContents.send(Channels.SetDirty, false)
+              }
 
               displayToast(this.mainWindow, 'Successfully saved file.')
             }
@@ -123,25 +135,35 @@ export default class MenuBuilder {
     this.saveFile(SaveType.SaveAs)
   }
 
+  checkForDirtyFile(): SaveFileChoice {
+    if (state.isDirty) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const buttonIndex = dialog.showMessageBoxSync({
+        type: 'question',
+        title: 'Confirmation',
+        message:
+          'The current file has unsaved changes.  Do you want to save them?',
+        buttons: ['Yes', 'No', 'Cancel']
+      })
+
+      if (buttonIndex === SaveFileChoice.Yes) {
+        this.handleSave()
+      }
+
+      return buttonIndex
+    }
+
+    return SaveFileChoice.NotDirty
+  }
+
   openFile(newFilePath: string) {
     try {
-      if (state.isDirty) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const buttonIndex = dialog.showMessageBoxSync({
-          type: 'question',
-          title: 'Confirmation',
-          message:
-            'The current file has unsaved changes.  Do you want to save them?',
-          buttons: ['Yes', 'No', 'Cancel']
-        })
+      const dirtyCheck = this.checkForDirtyFile()
 
-        if (buttonIndex === SaveFileChoice.Cancel) {
-          return
-        }
-
-        if (buttonIndex === SaveFileChoice.Yes) {
-          this.handleSave()
-        }
+      if (dirtyCheck === SaveFileChoice.Cancel) {
+        // There is a dirty file, but the user decided
+        // to cancel
+        return
       }
 
       fs.readFile(newFilePath, (err, data) => {
@@ -172,6 +194,14 @@ export default class MenuBuilder {
 
   async handleImport(): Promise<void> {
     try {
+      const dirtyCheck = this.checkForDirtyFile()
+
+      if (dirtyCheck === SaveFileChoice.Cancel) {
+        // There is a dirty file, but the user decided
+        // to cancel
+        return
+      }
+
       const { canceled, filePaths } = await dialog.showOpenDialog(
         this.mainWindow,
         {
@@ -231,6 +261,23 @@ export default class MenuBuilder {
       dialog.showMessageBox(this.mainWindow, {
         message: 'Unknown error in menu.ts::handleImport'
       })
+    }
+  }
+
+  handleNewFile() {
+    try {
+      const dirtyCheck = this.checkForDirtyFile()
+
+      if (dirtyCheck === SaveFileChoice.Cancel) {
+        // There is a dirty file, but the user decided
+        // to cancel
+        return
+      }
+
+      this.mainWindow.webContents.send(Channels.NewFile)
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`menu.ts::fileOpen`, error)
     }
   }
 
@@ -490,6 +537,13 @@ export default class MenuBuilder {
       {
         label: '&File',
         submenu: [
+          {
+            label: '&New',
+            accelerator: 'Ctrl+N',
+            click: () => {
+              this.handleNewFile()
+            }
+          },
           {
             label: '&Open',
             accelerator: 'Ctrl+O',

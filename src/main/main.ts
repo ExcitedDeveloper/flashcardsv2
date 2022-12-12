@@ -163,7 +163,13 @@ const createWindow = async () => {
                 return
               }
 
-              mainWindow!.webContents.send(Channels.SaveFile, currFilePath)
+              if (state.filePath !== currFilePath) {
+                // The file being saved is either a new file or
+                // a SaveAs
+                mainWindow!.webContents.send(Channels.SaveFile, currFilePath)
+              } else {
+                mainWindow!.webContents.send(Channels.SetDirty, false)
+              }
 
               displayToast(mainWindow!, 'Successfully saved file.')
             }

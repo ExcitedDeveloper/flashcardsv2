@@ -22,7 +22,8 @@ export enum Channels {
   UpdateState = 'update-state',
   SaveFile = 'save-file',
   OpenFile = 'open-file',
-  ResetScores = 'reset-scores'
+  ResetScores = 'reset-scores',
+  NewFile = 'new-file'
 }
 
 export const displayToast = (mainWindow: BrowserWindow, message: string) => {
@@ -32,7 +33,8 @@ export const displayToast = (mainWindow: BrowserWindow, message: string) => {
 export enum SaveFileChoice {
   Yes = 0,
   No = 1,
-  Cancel = 2
+  Cancel = 2,
+  NotDirty = 3
 }
 
 export enum SaveType {
