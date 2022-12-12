@@ -283,6 +283,14 @@ export default class MenuBuilder {
 
   async handleOpen(): Promise<void> {
     try {
+      const dirtyCheck = this.checkForDirtyFile()
+
+      if (dirtyCheck === SaveFileChoice.Cancel) {
+        // There is a dirty file, but the user decided
+        // to cancel
+        return
+      }
+
       const { canceled, filePaths } = await dialog.showOpenDialog(
         this.mainWindow,
         {
