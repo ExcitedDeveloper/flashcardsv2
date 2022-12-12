@@ -9,6 +9,8 @@ import {
 import fs from 'fs'
 import { OpenFileInfo } from 'renderer/types/cueCard'
 import Store from 'electron-store'
+import { XMLParser } from 'fast-xml-parser'
+import { v4 as uuidv4 } from 'uuid'
 import { CueCardsState } from '../redux/cueCards'
 import { Channels, displayToast, SaveFileChoice } from './util'
 import { getFileName } from '../renderer/util/util'
@@ -23,6 +25,12 @@ interface RecentFile {
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
+}
+
+interface ImportCueCard {
+  '@_Question': string
+  '@_Answer': string
+  '@_History': string
 }
 
 let filePath: string
@@ -182,7 +190,41 @@ export default class MenuBuilder {
         return
       }
 
-      this.openFile(filePaths[0])
+      fs.readFile(filePaths[0], (err, data) => {
+        if (err) {
+          displayToast(
+            this.mainWindow,
+            `An error occurred while importing file.`
+          )
+          return
+        }
+
+        const parser = new XMLParser({
+          ignoreAttributes: false
+        })
+
+        const json = parser.parse(data)
+
+        const cueCards =
+          json.CueCards?.Card?.map((card: ImportCueCard) => ({
+            id: uuidv4(),
+            question: card['@_Question'],
+            answer: card['@_Answer'],
+            history: card['@_History']
+          })) || []
+
+        if (!cueCards) {
+          displayToast(
+            this.mainWindow,
+            `An error occurred while parsing import file.`
+          )
+          return
+        }
+
+        displayToast(this.mainWindow, `File was successfully imported.`)
+
+        this.mainWindow.webContents.send(Channels.LoadCueCards, cueCards)
+      })
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
