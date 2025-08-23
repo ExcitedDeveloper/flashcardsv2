@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router'
+import { useDispatch } from 'react-redux'
 import 'react-toastify/dist/ReactToastify.css'
 import { AgGridReact } from 'ag-grid-react'
 import {
@@ -7,11 +9,14 @@ import {
   RowNode,
   GridApi
 } from 'ag-grid-community'
-import useWindowSize, { Size } from 'renderer/hooks/useWindowSize'
-import { useNavigate } from 'react-router'
-import { useDispatch } from 'react-redux'
-import CueCard from 'renderer/types/cueCard'
+import useWindowSize, { Size } from '../../hooks/useWindowSize'
+import CueCard from '../../types/cueCard'
 import { useAppSelector } from '../../../redux/hooks'
+import { calculateScore } from '../../util/scoring'
+import {
+  calculateContentHeight,
+  calculateMainContentHeight
+} from '../../util/layout'
 import {
   clearScrollAction,
   deleteCueCard,
@@ -19,16 +24,26 @@ import {
   loadCueCards
 } from '../../../redux/cueCards'
 import Button from '../Button/Button'
-import {
-  DEFAULT_WINDOW_HEIGHT,
-  MENU_BAR_HEIGHT,
-  FOOTER_HEIGHT
-} from '../../constants'
 import { ScrollAction } from '../../types/scroll'
 import 'ag-grid-community/dist/styles/ag-grid.css'
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css'
 import '../../App.css'
 import './CardList.css'
+
+const scoreComparator = (valueA: string, valueB: string) => {
+  // valueA and valueB are in format <num>% or for ex 100%
+  // Strip off the '%' to get the num
+  const numA = Number(valueA.slice(0, -1))
+  const numB = Number(valueB.slice(0, -1))
+
+  if (numA === numB) {
+    return 0
+  }
+  if (numA > numB) {
+    return 1
+  }
+  return -1
+}
 
 const columnDefs = [
   {
@@ -48,20 +63,7 @@ const columnDefs = [
     sortable: true,
     filter: true,
     flex: 1,
-    comparator: (valueA: string, valueB: string) => {
-      // valueA and valueB are in format <num>% or for ex 100%
-      // Strip off the '%' to get the num
-      const numA = Number(valueA.slice(0, -1))
-      const numB = Number(valueB.slice(0, -1))
-
-      if (numA === numB) {
-        return 0
-      }
-      if (numA > numB) {
-        return 1
-      }
-      return -1
-    }
+    comparator: scoreComparator
   }
 ]
 
@@ -85,63 +87,37 @@ const CardList = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [selectedRowId, setSelectedRowId] = useState()
-  const [cueCardsWithScores, setCueCardsWithScores] = useState<CueCard[]>([])
   const [gridApi, setGridApi] = useState<GridApi>()
 
-  const getScore = (history: string): string => {
-    if (!history || history.length <= 0) {
-      return ''
-    }
-
-    const tries = history.length
-
-    // Get the number of successful tries
-    const successes = history.split('').reduce((acc: number, curr: string) => {
-      return curr === 'Y' ? acc + 1 : acc
-    }, 0)
-
-    // Score is successes divided by tries
-    let score = Math.floor((successes / tries) * 100)
-    if (score < 0) {
-      score = 0
-    } else if (score > 100) {
-      score = 100
-    }
-
-    return `${score}%`
-  }
-
-  useEffect(() => {
-    const withScores = cueCards.map((card) => ({
+  const cueCardsWithScores = useMemo(() => {
+    return cueCards.map((card) => ({
       ...card,
-      score: getScore(card.history)
+      score: calculateScore(card.history)
     }))
-
-    setCueCardsWithScores(withScores)
   }, [cueCards])
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (shouldScroll) {
       changeScroll(shouldScroll)
       dispatch(clearScrollAction())
     }
-  }
+  }, [shouldScroll, dispatch])
 
-  const handleRowSelected = (e: RowSelectedEvent) => {
+  const handleRowSelected = useCallback((e: RowSelectedEvent) => {
     setSelectedRowId(e.data.id)
-  }
+  }, [])
 
-  const handleDeleteCard = () => {
+  const handleDeleteCard = useCallback(() => {
     dispatch(deleteCueCard(selectedRowId || ''))
     setSelectedRowId(undefined)
-  }
+  }, [dispatch, selectedRowId])
 
-  const handleStudy = () => {
+  const handleStudy = useCallback(() => {
     dispatch(startStudying())
     navigate('/Study')
-  }
+  }, [dispatch, navigate])
 
-  const handleSortChanged = () => {
+  const handleSortChanged = useCallback(() => {
     changeScroll(ScrollAction.Top)
 
     if (gridApi) {
@@ -153,22 +129,19 @@ const CardList = () => {
 
       dispatch(loadCueCards(rowData))
     }
-  }
+  }, [gridApi, dispatch])
 
   return (
     <div
       className="card-list"
       style={{
-        height: (size.height || DEFAULT_WINDOW_HEIGHT) - MENU_BAR_HEIGHT
+        height: calculateContentHeight(size.height)
       }}
     >
       <div
         className="ag-theme-alpine"
         style={{
-          height:
-            (size.height || DEFAULT_WINDOW_HEIGHT) -
-            MENU_BAR_HEIGHT -
-            FOOTER_HEIGHT
+          height: calculateMainContentHeight(size.height)
         }}
       >
         <AgGridReact

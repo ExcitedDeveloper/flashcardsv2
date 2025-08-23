@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start:*)",
+      "Bash(npm run build:renderer:*)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 30 npm run start:renderer)",
+      "Bash(taskkill:*)",
+      "Bash(set PORT=3000)",
+      "Bash(npm run start:renderer:*)",
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run build:*)",
+      "Bash(dir /s C:UsersHomeDocumentsprojectsflashcardsv2srcrendererutil)",
+      "Bash(set PORT=3001)",
+      "Bash(npx prettier:*)",
+      "Bash(npm run format:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -4,6 +4,7 @@ import { useAppSelector } from '../redux/hooks'
 import CardList from './components/CardList/CardList'
 import EditCard from './components/EditCard/EditCard'
 import Study from './components/Study/Study'
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { Channels } from '../main/util'
 import { getFileName } from './util/util'
 import './App.css'
@@ -44,13 +45,15 @@ export default function App() {
   }, [filePath, isDirty, cueCards])
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<CardList />} />
-        <Route path="/AddCard" element={<EditCard />} />
-        <Route path="/EditCard" element={<EditCard />} />
-        <Route path="/Study" element={<Study />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path="/" element={<CardList />} />
+          <Route path="/AddCard" element={<EditCard />} />
+          <Route path="/EditCard" element={<EditCard />} />
+          <Route path="/Study" element={<Study />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   )
 }

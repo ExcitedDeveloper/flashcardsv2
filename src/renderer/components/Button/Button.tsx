@@ -4,7 +4,7 @@ export type ButtonTypes = 'button' | 'submit' | 'reset' | undefined
 
 export interface ButtonProps {
   type?: ButtonTypes
-  onClick: () => void
+  onClick?: () => void
   children: React.ReactNode
   className?: string
   style?: object
@@ -16,9 +16,12 @@ const Button = ({
   onClick,
   children,
   className,
-  disabled,
+  style,
+  disabled = false,
   ...rest
 }: ButtonProps) => {
+  const combinedClassName = className ? `button ${className}` : 'button'
+
   return (
     <button
       // eslint-disable-next-line react/button-has-type
@@ -26,7 +29,8 @@ const Button = ({
       onClick={onClick}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...rest}
-      className={className}
+      className={combinedClassName}
+      style={style}
       disabled={disabled}
     >
       {children}
@@ -36,8 +40,9 @@ const Button = ({
 
 Button.defaultProps = {
   type: 'button',
-  className: '',
-  style: {},
+  onClick: undefined,
+  className: undefined,
+  style: undefined,
   disabled: false
 }
 

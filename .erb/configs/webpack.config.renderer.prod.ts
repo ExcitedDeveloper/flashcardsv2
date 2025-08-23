@@ -129,7 +129,7 @@ const configuration: webpack.Configuration = {
       template: path.join(webpackPaths.srcRendererPath, 'index.ejs'),
       minify: {
         collapseWhitespace: true,
-        removeAttributeQuotes: true,
+        removeAttributeQuotes: false,
         removeComments: true
       },
       isBrowser: false,

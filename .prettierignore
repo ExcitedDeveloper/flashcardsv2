@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+release/
+coverage/
+
+# Generated webpack files
+.erb/dll/
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

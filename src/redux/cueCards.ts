@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from './store'
 import CueCard, { OpenFileInfo } from '../renderer/types/cueCard'
 import { ScrollAction } from '../renderer/types/scroll'
+import { updateHistory } from '../renderer/util/scoring'
 
 export enum StudyStatus {
   Question,
@@ -98,9 +99,11 @@ export const cueCardsSlice = createSlice({
       state.studyMode = StudyStatus.Question
       state.cueCards = state.cueCards.map((card, index) => {
         if (index === state.studyCueCardIndex) {
-          card.history += action.payload ? 'Y' : 'N'
+          return {
+            ...card,
+            history: updateHistory(card.history, action.payload)
+          }
         }
-
         return card
       })
       state.studyCueCardIndex =
