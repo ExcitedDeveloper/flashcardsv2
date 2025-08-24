@@ -67,17 +67,19 @@ if (!global.crypto) {
   }
 }
 
-// Mock Electron preload API
-Object.defineProperty(window, 'electron', {
-  value: {
-    ipcRenderer: {
-      sendMessage: jest.fn(),
-      on: jest.fn(),
-      once: jest.fn(),
-      removeListener: jest.fn()
+// Mock Electron preload API (only if not already defined)
+if (!('electron' in window)) {
+  Object.defineProperty(window, 'electron', {
+    value: {
+      ipcRenderer: {
+        sendMessage: jest.fn(),
+        on: jest.fn(),
+        once: jest.fn(),
+        removeListener: jest.fn()
+      }
     }
-  }
-})
+  })
+}
 
 // Global test timeout
 jest.setTimeout(10000)
