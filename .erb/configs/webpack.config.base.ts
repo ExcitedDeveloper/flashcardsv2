@@ -4,8 +4,21 @@
 
 import webpack from 'webpack'
 import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import webpackPaths from './webpack.paths'
-import { dependencies as externals } from '../../release/app/package.json'
+
+// Safely import dependencies from release package.json, fallback to empty object
+let externals: Record<string, string> = {}
+try {
+  const packagePath = join(__dirname, '../../release/app/package.json')
+  const packageContent = readFileSync(packagePath, 'utf8')
+  const releasePackage = JSON.parse(packageContent)
+  externals = releasePackage.dependencies || {}
+} catch {
+  // Release package.json doesn't exist or doesn't have dependencies
+  externals = {}
+}
 
 const configuration: webpack.Configuration = {
   externals: [

@@ -1,7 +1,17 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
-import { dependencies } from '../../release/app/package.json'
 import webpackPaths from '../configs/webpack.paths'
+
+// Safely import dependencies from release package.json, fallback to empty object
+let dependencies = {}
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-dynamic-require
+  const releasePackage = require('../../release/app/package.json')
+  dependencies = releasePackage.dependencies || {}
+} catch {
+  // Release package.json doesn't exist or doesn't have dependencies
+  dependencies = {}
+}
 
 if (
   Object.keys(dependencies || {}).length > 0 &&

@@ -21,7 +21,15 @@
       "Bash(PORT=4343 npm start)",
       "Bash(npm run lint:*)",
       "Bash(timeout 15 npm run lint)",
-      "Bash(npm run package:*)"
+      "Bash(npm run package:*)",
+      "Bash(dir:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(cross-env:*)",
+      "Bash(npx cross-env NODE_ENV=development eslint --cache --fix . --ext .js,.jsx,.ts,.tsx)",
+      "Bash(npx cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx)",
+      "Bash(rm:*)",
+      "Bash(npx cross-env NODE_ENV=development eslint --cache --fix .)"
     ],
     "deny": [],
     "ask": []
