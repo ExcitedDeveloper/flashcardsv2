@@ -42,7 +42,7 @@ const EditCard = () => {
       questionInput.reset()
       answerInput.reset()
     }
-  }, [location.state?.selectedRowId, currCueCards, questionInput, answerInput])
+  }, [location.state?.selectedRowId, currCueCards])
 
   const handleButtonClick = (clickType: ButtonClickType) => {
     const question = questionInput.value.trim()

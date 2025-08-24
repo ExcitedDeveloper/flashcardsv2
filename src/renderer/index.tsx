@@ -12,7 +12,8 @@ import {
   saveFile,
   openFile,
   resetScores,
-  newFile
+  newFile,
+  setDirty
 } from '../redux/cueCards'
 import CueCard, { OpenFileInfo } from './types/cueCard'
 
@@ -59,6 +60,10 @@ window.electron.ipcRenderer.on(Channels.SaveFile, (filePath) => {
 
 window.electron.ipcRenderer.on(Channels.ResetScores, () => {
   store.dispatch(resetScores())
+})
+
+window.electron.ipcRenderer.on(Channels.SetDirty, (isDirty) => {
+  store.dispatch(setDirty(isDirty as boolean))
 })
 
 if (process) {

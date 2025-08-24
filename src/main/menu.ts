@@ -39,13 +39,6 @@ ipcMain.on(Channels.SetFilePath, async (_event, arg) => {
   filePath = arg && arg.length > 0 ? arg[0] : ''
 })
 
-let state: CueCardsState
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-ipcMain.on(Channels.UpdateState, (_event, args) => {
-  state = args && args.length > 0 ? args[0] : {}
-})
-
 enum SaveType {
   Save,
   SaveAs
@@ -56,12 +49,15 @@ export default class MenuBuilder {
 
   store: Store<Record<string, unknown>>
 
-  constructor(mainWindow: BrowserWindow) {
+  getState: () => CueCardsState
+
+  constructor(mainWindow: BrowserWindow, getState: () => CueCardsState) {
     this.mainWindow = mainWindow
     this.store = new Store()
+    this.getState = getState
   }
 
-  saveFile(saveType: SaveType) {
+  saveFile(saveType: SaveType, state: CueCardsState) {
     try {
       let currFilePath: string | undefined = filePath
 
@@ -127,15 +123,15 @@ export default class MenuBuilder {
     }
   }
 
-  async handleSave(): Promise<void> {
-    this.saveFile(SaveType.Save)
+  async handleSave(state: CueCardsState): Promise<void> {
+    this.saveFile(SaveType.Save, state)
   }
 
-  async handleSaveAs(): Promise<void> {
-    this.saveFile(SaveType.SaveAs)
+  async handleSaveAs(state: CueCardsState): Promise<void> {
+    this.saveFile(SaveType.SaveAs, state)
   }
 
-  checkForDirtyFile(): SaveFileChoice {
+  checkForDirtyFile(state: CueCardsState): SaveFileChoice {
     if (state.isDirty) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const buttonIndex = dialog.showMessageBoxSync({
@@ -147,7 +143,7 @@ export default class MenuBuilder {
       })
 
       if (buttonIndex === SaveFileChoice.Yes) {
-        this.handleSave()
+        this.handleSave(state)
       }
 
       return buttonIndex
@@ -156,9 +152,9 @@ export default class MenuBuilder {
     return SaveFileChoice.NotDirty
   }
 
-  openFile(newFilePath: string) {
+  openFile(newFilePath: string, state: CueCardsState) {
     try {
-      const dirtyCheck = this.checkForDirtyFile()
+      const dirtyCheck = this.checkForDirtyFile(state)
 
       if (dirtyCheck === SaveFileChoice.Cancel) {
         // There is a dirty file, but the user decided
@@ -192,9 +188,9 @@ export default class MenuBuilder {
     }
   }
 
-  async handleImport(): Promise<void> {
+  async handleImport(state: CueCardsState): Promise<void> {
     try {
-      const dirtyCheck = this.checkForDirtyFile()
+      const dirtyCheck = this.checkForDirtyFile(state)
 
       if (dirtyCheck === SaveFileChoice.Cancel) {
         // There is a dirty file, but the user decided
@@ -264,9 +260,9 @@ export default class MenuBuilder {
     }
   }
 
-  handleNewFile() {
+  handleNewFile(state: CueCardsState) {
     try {
-      const dirtyCheck = this.checkForDirtyFile()
+      const dirtyCheck = this.checkForDirtyFile(state)
 
       if (dirtyCheck === SaveFileChoice.Cancel) {
         // There is a dirty file, but the user decided
@@ -281,9 +277,9 @@ export default class MenuBuilder {
     }
   }
 
-  async handleOpen(): Promise<void> {
+  async handleOpen(state: CueCardsState): Promise<void> {
     try {
-      const dirtyCheck = this.checkForDirtyFile()
+      const dirtyCheck = this.checkForDirtyFile(state)
 
       if (dirtyCheck === SaveFileChoice.Cancel) {
         // There is a dirty file, but the user decided
@@ -343,6 +339,7 @@ export default class MenuBuilder {
   }
 
   buildMenu(): Menu {
+    const state = this.getState()
     if (
       process.env.NODE_ENV === 'development' ||
       process.env.DEBUG_PROD === 'true'
@@ -549,14 +546,14 @@ export default class MenuBuilder {
             label: '&New',
             accelerator: 'Ctrl+N',
             click: () => {
-              this.handleNewFile()
+              this.handleNewFile(this.getState())
             }
           },
           {
             label: '&Open',
             accelerator: 'Ctrl+O',
             click: () => {
-              this.handleOpen()
+              this.handleOpen(this.getState())
             }
           },
           {
@@ -571,14 +568,14 @@ export default class MenuBuilder {
             label: '&Save',
             accelerator: 'Ctrl+S',
             click: () => {
-              this.handleSave()
+              this.handleSave(this.getState())
             }
           },
           {
             label: '&Save As',
             accelerator: 'Ctrl+A',
             click: () => {
-              this.handleSaveAs()
+              this.handleSaveAs(this.getState())
             }
           },
           { type: 'separator' },
@@ -586,7 +583,7 @@ export default class MenuBuilder {
             label: '&Import',
             accelerator: 'Ctrl+I',
             click: async () => {
-              this.handleImport()
+              this.handleImport(this.getState())
             }
           }
         ]
@@ -656,7 +653,7 @@ export default class MenuBuilder {
       templateDefault[0].submenu.push({
         label: recent.label,
         click: async () => {
-          this.openFile(recent.filePath)
+          this.openFile(recent.filePath, this.getState())
         }
       })
     })
