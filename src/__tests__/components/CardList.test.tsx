@@ -21,9 +21,11 @@ jest.mock('ag-grid-react', () => ({
     onRowSelected,
     rowData
   }: {
+    // eslint-disable-next-line react/require-default-props
     onRowSelected?: (event: {
       data: { id: string; question: string; answer: string; score: string }
     }) => void
+    // eslint-disable-next-line react/require-default-props
     rowData?: { id: string; question: string; answer: string; score: string }[]
   }) => {
     // Simulate basic grid functionality

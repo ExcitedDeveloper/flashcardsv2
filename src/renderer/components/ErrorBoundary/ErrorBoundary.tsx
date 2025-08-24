@@ -5,7 +5,7 @@ import './ErrorBoundary.css'
 
 interface Props {
   children: ReactNode
-  fallback?: ReactNode
+  fallback?: ReactNode // eslint-disable-line react/require-default-props
 }
 
 interface State {

@@ -38,7 +38,7 @@ Object.defineProperty(Element.prototype, 'scrollIntoView', {
 Object.defineProperty(global, 'crypto', {
   value: {
     getRandomValues: (arr: Uint8Array) => {
-      for (let i = 0; i < arr.length; i++) {
+      for (let i = 0; i < arr.length; i += 1) {
         arr[i] = Math.floor(Math.random() * 256)
       }
       return arr
