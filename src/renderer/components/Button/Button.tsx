@@ -38,12 +38,4 @@ const Button = ({
   )
 }
 
-Button.defaultProps = {
-  type: 'button',
-  onClick: undefined,
-  className: undefined,
-  style: undefined,
-  disabled: false
-}
-
 export default Button
