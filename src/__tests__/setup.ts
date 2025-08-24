@@ -36,17 +36,36 @@ if (!Element.prototype.scrollIntoView) {
   })
 }
 
-// Mock crypto.getRandomValues for UUID generation
-Object.defineProperty(global, 'crypto', {
-  value: {
-    getRandomValues: (arr: Uint8Array) => {
+// Mock crypto.getRandomValues for UUID generation (only if not already defined)
+if (!global.crypto) {
+  Object.defineProperty(global, 'crypto', {
+    value: {
+      getRandomValues: (arr: Uint8Array) => {
+        for (let i = 0; i < arr.length; i += 1) {
+          arr[i] = Math.floor(Math.random() * 256)
+        }
+        return arr
+      }
+    }
+  })
+} else if (!global.crypto.getRandomValues) {
+  // If crypto exists but doesn't have getRandomValues, add it
+  global.crypto.getRandomValues = <T extends ArrayBufferView | null>(
+    array: T
+  ): T => {
+    if (array) {
+      const arr = new Uint8Array(
+        array.buffer,
+        array.byteOffset,
+        array.byteLength
+      )
       for (let i = 0; i < arr.length; i += 1) {
         arr[i] = Math.floor(Math.random() * 256)
       }
-      return arr
     }
+    return array
   }
-})
+}
 
 // Mock Electron preload API
 Object.defineProperty(window, 'electron', {
