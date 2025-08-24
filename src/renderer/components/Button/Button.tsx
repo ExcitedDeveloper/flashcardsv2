@@ -3,12 +3,12 @@ import './Button.css'
 export type ButtonTypes = 'button' | 'submit' | 'reset' | undefined
 
 export interface ButtonProps {
-  type?: ButtonTypes
-  onClick?: () => void
+  type?: ButtonTypes // eslint-disable-line react/require-default-props
+  onClick?: () => void // eslint-disable-line react/require-default-props
   children: React.ReactNode
-  className?: string
-  style?: object
-  disabled?: boolean
+  className?: string // eslint-disable-line react/require-default-props
+  style?: object // eslint-disable-line react/require-default-props
+  disabled?: boolean // eslint-disable-line react/require-default-props
 }
 
 const Button = ({

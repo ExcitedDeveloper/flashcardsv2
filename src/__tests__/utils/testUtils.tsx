@@ -7,6 +7,7 @@ import cueCardsReducer, { CueCardsState } from '../../redux/cueCards'
 import CueCard from '../../renderer/types/cueCard'
 
 // Get reference to the electron mock that was set up in setup.ts
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockElectron = (window as any).electron
 
 // Test data factory

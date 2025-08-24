@@ -29,10 +29,12 @@ Object.defineProperty(window, 'matchMedia', {
   }))
 })
 
-// Mock scrollIntoView
-Object.defineProperty(Element.prototype, 'scrollIntoView', {
-  value: jest.fn()
-})
+// Mock scrollIntoView (only if not already defined)
+if (!Element.prototype.scrollIntoView) {
+  Object.defineProperty(Element.prototype, 'scrollIntoView', {
+    value: jest.fn()
+  })
+}
 
 // Mock crypto.getRandomValues for UUID generation
 Object.defineProperty(global, 'crypto', {
