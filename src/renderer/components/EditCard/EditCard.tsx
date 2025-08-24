@@ -31,18 +31,31 @@ const EditCard = () => {
   const questionInput = useFormInput('')
   const answerInput = useFormInput('')
 
+  // Extract stable methods for useEffect dependencies
+  const { setValue: setQuestion, reset: resetQuestion } = questionInput
+  const { setValue: setAnswer, reset: resetAnswer } = answerInput
+
+  // ESLint wants questionInput/answerInput in deps, but including them causes infinite re-renders
+  // The extracted stable methods are the correct dependencies to avoid this issue
   useEffect(() => {
     if (location.state?.selectedRowId) {
       const currCard = getCueCard(currCueCards, location.state.selectedRowId)
       if (currCard) {
-        questionInput.setValue(currCard.question)
-        answerInput.setValue(currCard.answer)
+        setQuestion(currCard.question)
+        setAnswer(currCard.answer)
       }
     } else {
-      questionInput.reset()
-      answerInput.reset()
+      resetQuestion()
+      resetAnswer()
     }
-  }, [location.state?.selectedRowId, currCueCards])
+  }, [
+    location.state?.selectedRowId,
+    currCueCards,
+    setQuestion,
+    setAnswer,
+    resetQuestion,
+    resetAnswer
+  ])
 
   const handleButtonClick = (clickType: ButtonClickType) => {
     const question = questionInput.value.trim()

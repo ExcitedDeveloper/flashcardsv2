@@ -11,6 +11,10 @@ interface UseFormInputReturn {
 export const useFormInput = (initialValue = ''): UseFormInputReturn => {
   const [value, setValue] = useState(initialValue)
 
+  const stableSetValue = useCallback((newValue: string) => {
+    setValue(newValue)
+  }, [])
+
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setValue(event.target.value)
@@ -26,7 +30,7 @@ export const useFormInput = (initialValue = ''): UseFormInputReturn => {
 
   return {
     value,
-    setValue,
+    setValue: stableSetValue,
     onChange,
     reset,
     isEmpty

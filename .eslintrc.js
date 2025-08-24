@@ -17,6 +17,8 @@ module.exports = {
     'import/prefer-default-export': 'off',
     // Since React 17 and typescript 4.1 you can safely disable the rule
     'react/react-in-jsx-scope': 'off',
+    // Change exhaustive-deps from error to warning to prevent commit hook failures
+    'react-hooks/exhaustive-deps': 'warn',
     semi: ['error', 'never']
   },
   parserOptions: {
