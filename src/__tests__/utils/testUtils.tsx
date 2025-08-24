@@ -8,8 +8,12 @@ import CueCard from '../../renderer/types/cueCard'
 
 // Get reference to the electron mock that was set up in setup.ts
 const mockElectron = (
-  window as Window & {
-    electron?: { ipcRenderer?: { sendMessage?: () => void } }
+  window as unknown as Window & {
+    electron?: {
+      ipcRenderer?: {
+        sendMessage?: (channel: string, args: unknown[]) => void
+      }
+    }
   }
 ).electron
 

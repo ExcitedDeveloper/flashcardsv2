@@ -105,8 +105,4 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-ErrorBoundary.defaultProps = {
-  fallback: undefined
-}
-
 export default ErrorBoundary

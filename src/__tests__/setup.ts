@@ -34,6 +34,18 @@ Object.defineProperty(Element.prototype, 'scrollIntoView', {
   value: jest.fn()
 })
 
+// Mock crypto.getRandomValues for UUID generation
+Object.defineProperty(global, 'crypto', {
+  value: {
+    getRandomValues: (arr: Uint8Array) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256)
+      }
+      return arr
+    }
+  }
+})
+
 // Mock Electron preload API
 Object.defineProperty(window, 'electron', {
   value: {

@@ -16,49 +16,41 @@ jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate
 }))
 
-// Mock AgGrid to avoid complex DOM interactions in tests
-const MockAgGridReact = ({
-  onRowSelected,
-  rowData
-}: {
-  onRowSelected?: (event: {
-    data: { id: string; question: string; answer: string; score: string }
-  }) => void
-  rowData?: { id: string; question: string; answer: string; score: string }[]
-}) => {
-  // Simulate basic grid functionality
-  const data = rowData || []
-  return (
-    <div data-testid="ag-grid">
-      {data.map((card, index: number) => (
-        <div
-          key={card.id}
-          data-testid={`grid-row-${index}`}
-          onClick={() => onRowSelected?.({ data: card })}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              onRowSelected?.({ data: card })
-            }
-          }}
-          role="button"
-          tabIndex={0}
-        >
-          <span data-testid={`question-${index}`}>{card.question}</span>
-          <span data-testid={`answer-${index}`}>{card.answer}</span>
-          <span data-testid={`score-${index}`}>{card.score}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-MockAgGridReact.defaultProps = {
-  onRowSelected: undefined,
-  rowData: []
-}
-
 jest.mock('ag-grid-react', () => ({
-  AgGridReact: MockAgGridReact
+  AgGridReact: ({
+    onRowSelected,
+    rowData
+  }: {
+    onRowSelected?: (event: {
+      data: { id: string; question: string; answer: string; score: string }
+    }) => void
+    rowData?: { id: string; question: string; answer: string; score: string }[]
+  }) => {
+    // Simulate basic grid functionality
+    const data = rowData || []
+    return (
+      <div data-testid="ag-grid">
+        {data.map((card, index: number) => (
+          <div
+            key={card.id}
+            data-testid={`grid-row-${index}`}
+            onClick={() => onRowSelected?.({ data: card })}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                onRowSelected?.({ data: card })
+              }
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            <span data-testid={`question-${index}`}>{card.question}</span>
+            <span data-testid={`answer-${index}`}>{card.answer}</span>
+            <span data-testid={`score-${index}`}>{card.score}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
 }))
 
 describe('CardList Component', () => {
